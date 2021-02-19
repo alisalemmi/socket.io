@@ -2,9 +2,8 @@
   "name": "socket.io",
   "version": "1.0.0",
   "description": "آموزش socket.io",
-  "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "websocket": "nodemon websocket/backend/server"
   },
   "husky": {
     "hooks": {
@@ -36,5 +35,8 @@
     "prettier": "^2.2.1",
     "pretty-quick": "^3.1.0"
   },
-  "dependencies": {}
+  "dependencies": {
+    "express": "^4.17.1",
+    "ws": "^7.4.2"
+  }
 }
