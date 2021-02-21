@@ -1,5 +1,5 @@
 <template lang="pug">
-#app 
+#app
   router-view
 </template>
 
@@ -12,7 +12,7 @@
 *,
 *::before,
 *::after {
-  font-family: iransans, sans-serif;
+  font-family: vazir, sans-serif;
   box-sizing: border-box;
   margin: 0;
   padding: 0;
