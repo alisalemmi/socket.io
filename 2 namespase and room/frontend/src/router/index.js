@@ -6,8 +6,8 @@ Vue.use(VueRouter);
 const routes = [
   {
     path: '/',
-    name: 'Chat'
-    // component:
+    name: 'Chat',
+    component: () => import(/*webpackChunkName: 'chat'*/ '@/views/Chat.vue')
   }
 ];
 

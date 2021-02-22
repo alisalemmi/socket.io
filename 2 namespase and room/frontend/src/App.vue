@@ -6,7 +6,7 @@
 <style lang="scss">
 @font-face {
   font-family: vazir;
-  src: url('@/assets/font/Vazir-FD.ttf');
+  src: url('./assets/font/Vazir-FD.ttf');
 }
 
 *,

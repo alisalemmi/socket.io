@@ -1,0 +1,39 @@
+@mixin respond($device) {
+  @if $device == phone {
+    @media only screen and (max-width: 37.5em) {
+      @content;
+    }
+  }
+  @if $device == tab-port {
+    @media only screen and (max-width: 56.25em) {
+      @content;
+    }
+  }
+  @if $device == tab-port-touch {
+    @media only screen and (max-width: 56.25em), only screen and (hover: none) {
+      @content;
+    }
+  }
+  @if $device == tab-land {
+    @media only screen and (max-width: 75em) {
+      @content;
+    }
+  }
+  @if $device == big-desktop {
+    @media only screen and (min-width: 112.5em) {
+      @content;
+    }
+  }
+}
+
+@mixin no-drag() {
+  user-select: none;
+  user-drag: none;
+  -webkit-user-drag: none;
+}
+
+@mixin round-box($background: #fff, $box-shadow: $shadow) {
+  border-radius: 2rem;
+  box-shadow: $box-shadow;
+  background-color: $background;
+}
