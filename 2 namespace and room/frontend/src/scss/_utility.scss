@@ -38,6 +38,8 @@
   background-color: $background;
 }
 
+// TODO dir?
+// TODO overlay
 @mixin scrollbar($width: 0.75rem, $padding: 0.5rem, $background: #babac0) {
   overflow-y: auto;
 

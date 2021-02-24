@@ -3,8 +3,9 @@
   "version": "1.0.0",
   "description": "آموزش socket.io",
   "scripts": {
-    "websocket": "nodemon websocket/backend/server",
-    "socketio": "nodemon '1 start socket.io'/backend/server.js "
+    "websocket": "nodemon '0 webSocket'/backend/server",
+    "socketio": "nodemon '1 start socket.io'/backend/server.js",
+    "chat": "nodemon '2 namespace and room'/backend/server.js"
   },
   "husky": {
     "hooks": {

@@ -9,6 +9,24 @@
       span.chat__room__date 14:56
       p.chat__room__last خوبی؟ حالت چطوره؟
 
+  .chat__message
+    .chat__message__box.chat__message__box--continue(
+      v-for='(message, index) in messages',
+      :key='index'
+    )
+      img.chat__message__image(
+        src='https://www.gardenia.net/storage/app/public/guides/detail/UMiTBTJea8fOlL0ca396xU75ZmnS6HE4HqtkVJUN.jpeg'
+      )
+      .chat__message__name علی سالمی
+      .chat__message__body
+        p.chat__message__text سلام
+        .chat__message__footer
+          svg.chat__message__status(@click='send')
+            use(
+              :xlink:href='`${require("@/assets/chatSprite.svg")}#double-tick-indicator`'
+            )
+          .chat__message__time 9:56
+
   form.chat__send
     #chat__send__message.chat__send__message(
       ref='chatSendMessage',
@@ -27,17 +45,17 @@
     ) پیام
 
     svg.chat__send__btn(@click='send')
-      use(:xlink:href='`${require("@/assets/chatSprite.svg")}#send`')
+      use(:xlink:href='`${require("@/assets/chatSprite.svg")}#send-button`')
 </template>
 
-// TODO dir?
 <script>
 export default {
   name: 'Chat',
   data: function () {
     return {
       message: '',
-      rooms: [{}, {}, {}, {}, {}, {}, {}, {}, {}]
+      rooms: [{}, {}, {}, {}, {}, {}, {}, {}, {}],
+      messages: [{}, {}, {}]
     };
   },
   methods: {
@@ -219,6 +237,77 @@ export default {
         border-radius: 0.75rem;
         transition-duration: 0.1s;
       }
+    }
+  }
+
+  &__message {
+    padding: 0 2rem;
+
+    @include scrollbar();
+
+    &__box {
+      display: grid;
+      max-width: 60%;
+      grid-template-columns: 4rem auto;
+      grid-template-areas:
+        'image name'
+        'image body';
+      justify-content: right;
+      grid-gap: 0.5rem 1.5rem;
+      margin-top: 1.5rem;
+
+      &--contine {
+        margin-top: 0.5rem;
+      }
+    }
+
+    &__image {
+      display: block;
+      width: 4rem;
+      height: 4rem;
+      grid-area: image;
+
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
+    &__name {
+      grid-area: name;
+
+      font-size: 1.2rem;
+      color: $color-text-gray;
+    }
+
+    &__body {
+      grid-area: body;
+      padding: 1rem 1rem 0.25rem 1rem;
+
+      border-radius: 1rem 0 1rem 1rem;
+      background-color: darken($color: $background-white-2, $amount: 5);
+    }
+
+    &__text {
+      user-select: text;
+    }
+
+    &__footer {
+      display: flex;
+      margin-top: 1rem;
+      color: $color-text-gray;
+    }
+
+    &__status {
+      width: 1.5rem;
+      height: 1.5rem;
+      margin-left: 3rem;
+
+      fill: currentColor;
+    }
+
+    &__time {
+      margin-right: auto;
+
+      font-size: 1.2rem;
     }
   }
 }
