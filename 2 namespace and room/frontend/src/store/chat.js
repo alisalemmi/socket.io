@@ -17,16 +17,31 @@ const formatTime = time => {
 export default {
   namespaced: true,
   state: {
-    rooms: [{}, {}, {}, {}, {}, {}, {}, {}, {}],
-    messages: [{ text: 'سلام', time: formatTime(1612528380000) }]
+    me: {
+      name: '',
+      image: ''
+    },
+    rooms: [],
+    messages: []
   },
   getter: {},
   mutations: {
-    mutationMessage: (state, message) => {
+    mutateMessage: (state, message) => {
       state.messages.push({
         text: message.text,
         time: formatTime(message.time)
       });
+    },
+    mutateRooms: (state, rooms) => {
+      for (const room of rooms) {
+        room.name = room.members[0].name;
+        room.image = room.members[0].image;
+      }
+
+      state.rooms = rooms;
+    },
+    mutateMe: (state, me) => {
+      ({ name: state.me.name, image: state.me.image } = me);
     }
   },
   actions: {}

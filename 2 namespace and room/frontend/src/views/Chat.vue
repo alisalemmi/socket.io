@@ -2,10 +2,8 @@
 .chat
   ul.chat__room
     li.chat__room__box(v-for='(room, index) in rooms', :key='index')
-      img.chat__room__image(
-        src='https://www.gardenia.net/storage/app/public/guides/detail/UMiTBTJea8fOlL0ca396xU75ZmnS6HE4HqtkVJUN.jpeg'
-      )
-      h4.chat__room__title محمد
+      img.chat__room__image(:src='`/image/${room.image}`')
+      h4.chat__room__title {{ room.name }}
       span.chat__room__date 14:56
       p.chat__room__last خوبی؟ حالت چطوره؟
 
@@ -21,7 +19,7 @@
       .chat__message__body
         p.chat__message__text {{ message.text }}
         .chat__message__footer
-          svg.chat__message__status(@click='send')
+          svg.chat__message__status
             use(
               :xlink:href='`${require("@/assets/chatSprite.svg")}#double-tick-indicator`'
             )
@@ -58,7 +56,7 @@ import VueSocketIOExt from 'vue-socket.io-extended';
 Vue.use(VueSocketIOExt, io(), {
   store,
   actionPrefix: 'action',
-  mutationPrefix: 'mutation',
+  mutationPrefix: 'mutate',
   eventToMutationTransformer: s => `${s[0].toUpperCase()}${s.slice(1)}`,
   eventToActionTransformer: s => `${s[0].toUpperCase()}${s.slice(1)}`
 });

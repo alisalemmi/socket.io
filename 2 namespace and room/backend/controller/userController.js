@@ -49,15 +49,16 @@ exports.login = async (req, res, next) => {
     .json({ status: 'success', user });
 };
 
-exports.getUser = async (req, res, next) => {
+exports.getUser = async token => {
+  let user;
+
   try {
-    const { id } = decodeToken(req.cookies.token);
+    const { id } = decodeToken(token);
 
-    const user = await User.findById(id);
-
-    if (user) res.status(200).json({ status: 'success', user });
-    else res.status(401).json({ status: 'fail' });
-  } catch {
-    res.status(401).json({ status: 'fail' });
+    user = await User.findById(id);
+  } catch (err) {
+    user = undefined;
   }
+
+  return user;
 };
