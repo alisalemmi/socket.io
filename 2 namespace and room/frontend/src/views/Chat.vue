@@ -19,13 +19,13 @@
       )
       .chat__message__name علی سالمی
       .chat__message__body
-        p.chat__message__text سلام
+        p.chat__message__text {{ message.text }}
         .chat__message__footer
           svg.chat__message__status(@click='send')
             use(
               :xlink:href='`${require("@/assets/chatSprite.svg")}#double-tick-indicator`'
             )
-          .chat__message__time 9:56
+          .chat__message__time {{ message.time }}
 
   form.chat__send
     #chat__send__message.chat__send__message(
@@ -49,23 +49,39 @@
 </template>
 
 <script>
+import Vue from 'vue';
+import { mapState } from 'vuex';
+import store from '@/store';
+import { io } from 'socket.io-client';
+import VueSocketIOExt from 'vue-socket.io-extended';
+
+Vue.use(VueSocketIOExt, io(), {
+  store,
+  actionPrefix: 'action',
+  mutationPrefix: 'mutation',
+  eventToMutationTransformer: s => `${s[0].toUpperCase()}${s.slice(1)}`,
+  eventToActionTransformer: s => `${s[0].toUpperCase()}${s.slice(1)}`
+});
+
 export default {
   name: 'Chat',
   data: function () {
     return {
-      message: '',
-      rooms: [{}, {}, {}, {}, {}, {}, {}, {}, {}],
-      messages: [{}, {}, {}]
+      message: ''
     };
   },
   methods: {
     send: function () {
+      this.$socket.client.emit('send', { text: this.message });
       this.setMessage('');
     },
     setMessage: function (message) {
       this.message = message;
       this.$refs.chatSendMessage.innerText = message;
     }
+  },
+  computed: {
+    ...mapState('chat', ['rooms', 'messages'])
   }
 };
 </script>
@@ -83,6 +99,14 @@ export default {
 
   @include no-drag();
 
+  @include respond(tab-port) {
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr min-content;
+    grid-template-areas:
+      'chats'
+      'send';
+  }
+
   &__room {
     $padding-tb: 2rem;
     $padding-lr: 1.5rem;
@@ -95,6 +119,10 @@ export default {
     direction: ltr; // go scroll bar right
 
     @include scrollbar($width: $scroll-width);
+
+    @include respond(tab-port) {
+      display: none;
+    }
 
     &__box {
       display: grid;
@@ -242,6 +270,7 @@ export default {
 
   &__message {
     padding: 0 2rem;
+    grid-area: chats;
 
     @include scrollbar();
 
@@ -288,6 +317,7 @@ export default {
 
     &__text {
       user-select: text;
+      white-space: pre-wrap;
     }
 
     &__footer {
@@ -299,13 +329,13 @@ export default {
     &__status {
       width: 1.5rem;
       height: 1.5rem;
-      margin-left: 3rem;
 
       fill: currentColor;
     }
 
     &__time {
       margin-right: auto;
+      padding-right: 3rem;
 
       font-size: 1.2rem;
     }
