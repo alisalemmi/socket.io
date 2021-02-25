@@ -40,8 +40,21 @@
 
 // TODO dir?
 // TODO overlay
-@mixin scrollbar($width: 0.75rem, $padding: 0.5rem, $background: #babac0) {
+@mixin scrollbar(
+  $width: 0.75rem,
+  $padding: 0.5rem,
+  $background: #babac0,
+  $force-right: false
+) {
   overflow-y: auto;
+
+  @if ($force-right) {
+    direction: ltr; // go scroll bar right
+
+    & > * {
+      direction: rtl; // go scroll bar right
+    }
+  }
 
   &::-webkit-scrollbar {
     width: $width + 2 * $padding;
