@@ -21,6 +21,8 @@ exports.getRooms = async userId => {
       members: userId
     })
     .project({
+      _id: false,
+      id: '$_id',
       members: {
         $filter: {
           input: '$members',

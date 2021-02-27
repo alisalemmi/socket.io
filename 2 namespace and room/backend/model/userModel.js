@@ -13,7 +13,7 @@ const userSchema = mongoose.Schema({
   },
   lastSeen: {
     type: Date,
-    default: new Date()
+    default: Date.now
   }
 });
 

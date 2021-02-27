@@ -4,7 +4,7 @@
     room(
       v-for='(room, index) in rooms',
       :key='index',
-      :name='room.name',
+      :name='room.name.join("، ")',
       :image='`/image/${room.image}`',
       lastTime='8:49',
       lastMessage='خوبی؟ حالت چطوره؟'

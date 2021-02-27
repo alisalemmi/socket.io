@@ -62,3 +62,6 @@ exports.getUser = async token => {
 
   return user;
 };
+
+exports.setLastSeen = id => () =>
+  User.findByIdAndUpdate(id, { lastSeen: Date.now() });

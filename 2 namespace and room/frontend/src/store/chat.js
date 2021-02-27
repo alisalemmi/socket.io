@@ -34,8 +34,8 @@ export default {
     },
     mutateRooms: (state, rooms) => {
       for (const room of rooms) {
-        room.name = room.members[0].name;
-        room.image = room.members[0].image;
+        room.name = room.members.map(member => member.name);
+        room.image = room.members.map(member => member.image);
       }
 
       state.rooms = rooms;
