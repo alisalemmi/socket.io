@@ -1,5 +1,8 @@
 <template lang="pug">
-li.chat__room__box
+li.chat__room__box(
+  :class='{ "chat__room__box--select": select }',
+  @click='$emit("click", $event)'
+)
   img.chat__room__image(:src='image')
   h4.chat__room__title {{ name }}
   span.chat__room__date {{ lastTime }}
@@ -9,7 +12,7 @@ li.chat__room__box
 <script>
 export default {
   name: 'chatRoom',
-  props: ['name', 'image', 'lastTime', 'lastMessage']
+  props: ['name', 'image', 'lastTime', 'lastMessage', 'select']
 };
 </script>
 
@@ -40,6 +43,10 @@ export default {
 
     &:hover {
       background-color: darken($color: $background-white, $amount: 8);
+    }
+
+    &--select {
+      background-color: darken($color: $background-white, $amount: 10);
     }
   }
 

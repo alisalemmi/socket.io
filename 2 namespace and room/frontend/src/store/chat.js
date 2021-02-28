@@ -1,3 +1,5 @@
+import Vue from 'vue';
+
 /**
  * give time in the form of `HH:mm` (24 hours, 2 digit numbers).
  * if given `time` is not a valid Date, return `Date.now()`
@@ -18,30 +20,59 @@ export default {
   namespaced: true,
   state: {
     me: {
+      id: '',
       name: '',
       image: ''
     },
     rooms: [],
-    messages: []
+    currentRoom: '',
+    messages: {}
   },
-  getter: {},
+  getters: {
+    messages: state => state.messages[state.currentRoom],
+    members: state =>
+      state.rooms.filter(room => room.id === state.currentRoom)[0].members
+  },
   mutations: {
-    mutateMessage: (state, message) => {
-      state.messages.push({
-        text: message.text,
-        time: formatTime(message.time)
-      });
+    mutateMe: (state, me) => {
+      ({ id: state.me.id, name: state.me.name, image: state.me.image } = me);
     },
     mutateRooms: (state, rooms) => {
+      state.rooms = [];
+
       for (const room of rooms) {
-        room.name = room.members.map(member => member.name);
-        room.image = room.members.map(member => member.image);
+        Vue.set(state.messages, room.id, []);
+
+        const r = {
+          id: room.id,
+          name: room.members.map(member => member.name),
+          image: room.members.map(member => member.image),
+          members: {}
+        };
+
+        for (const member of room.members) {
+          r.members[member._id] = {
+            name: member.name,
+            image: member.image,
+            lastSeen: member.lastSeen
+          };
+        }
+
+        state.rooms.push(r);
       }
 
-      state.rooms = rooms;
+      if (rooms.length) state.currentRoom = rooms[0].id;
     },
-    mutateMe: (state, me) => {
-      ({ name: state.me.name, image: state.me.image } = me);
+    changeRoom: (state, newRoomId) => {
+      state.currentRoom = newRoomId;
+    },
+    mutateMessage: (state, message) => {
+      state.messages[message.room].push({
+        text: message.text,
+        time: formatTime(message.time),
+        sender: message.sender,
+        isSend: state.me.id === message.sender
+      });
     }
   },
   actions: {}

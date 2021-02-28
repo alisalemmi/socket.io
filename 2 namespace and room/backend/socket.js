@@ -16,7 +16,8 @@ const findUser = async socket => {
   const { token } = cookie.parse(socket.request.headers.cookie);
   const user = await getUser(token);
 
-  // if (!user) return next(new Error('not auth'));
+  if (!user) throw new Error();
+  // return next(new Error('not auth'));
 
   socket.emit('me', user);
   socket.userId = user._id;
@@ -31,7 +32,26 @@ const getRooms = async socket => {
   socket.emit('rooms', rooms);
 
   // join rooms
-  rooms.forEach(room => socket.join(room.id));
+  rooms.forEach(room => socket.join(`${room.id}`));
+};
+
+/**
+ * @typedef {object} messageType
+ * @property {string} room
+ * @property {string} text
+ */
+/**
+ * broadcast received message. also set `sender` and `time`
+ * @param {messageType} message
+ */
+const sendMessage = userId => message => {
+  console.log(userId, message);
+  io.to(message.room).emit('message', {
+    text: message.text.trim(),
+    room: message.room,
+    sender: userId,
+    time: Date.now()
+  });
 };
 
 /**
@@ -41,10 +61,7 @@ const onConnect = async socket => {
   await findUser(socket);
   await getRooms(socket);
 
-  socket.on('send', message =>
-    io.emit('message', { text: message.text.trim(), time: Date.now() })
-  );
-
+  socket.on('send', sendMessage(socket.userId));
   socket.on('disconnect', setLastSeen(socket.userId));
 };
 
