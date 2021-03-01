@@ -26,12 +26,14 @@ export default {
     },
     rooms: [],
     currentRoom: '',
-    messages: {}
+    messages: {},
+    typingUsers: []
   },
   getters: {
     messages: state => state.messages[state.currentRoom],
     members: state =>
-      state.rooms.filter(room => room.id === state.currentRoom)[0].members
+      state.rooms.filter(room => room.id === state.currentRoom)[0].members,
+    typingUsers: state => state.typingUsers.map(t => t.userId)
   },
   mutations: {
     mutateMe: (state, me) => {
@@ -65,14 +67,41 @@ export default {
     },
     changeRoom: (state, newRoomId) => {
       state.currentRoom = newRoomId;
+      state.typingUsers = [];
     },
     mutateMessage: (state, message) => {
+      // remove isTyping
+      state.typingUsers = state.typingUsers.filter(
+        t => t.userId !== message.sender
+      );
+
       state.messages[message.room].push({
         text: message.text,
         time: formatTime(message.time),
         sender: message.sender,
         isSend: state.me.id === message.sender
       });
+    },
+    mutateTyping: (state, info) => {
+      if (info.room !== state.currentRoom) return;
+
+      const preTyping = state.typingUsers.find(t => t.userId === info.userId);
+
+      const timer = setTimeout(() => {
+        state.typingUsers = state.typingUsers.filter(
+          t => t.userId !== info.userId
+        );
+      }, info.expires);
+
+      if (preTyping) {
+        clearTimeout(preTyping.timer);
+        preTyping.timer = timer;
+      } else {
+        state.typingUsers.push({
+          userId: info.userId,
+          timer
+        });
+      }
     }
   },
   actions: {}

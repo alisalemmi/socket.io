@@ -35,6 +35,12 @@ const getRooms = async socket => {
   rooms.forEach(room => socket.join(`${room.id}`));
 };
 
+const sendTyping = socket => room => {
+  socket
+    .to(room)
+    .emit('typing', { userId: socket.userId, room, expires: 3000 });
+};
+
 /**
  * @typedef {object} messageType
  * @property {string} room
@@ -42,10 +48,9 @@ const getRooms = async socket => {
  */
 /**
  * broadcast received message. also set `sender` and `time`
- * @param {messageType} message
+ * @return {(message: messageType) => void} message
  */
 const sendMessage = userId => message => {
-  console.log(userId, message);
   io.to(message.room).emit('message', {
     text: message.text.trim(),
     room: message.room,
@@ -61,6 +66,7 @@ const onConnect = async socket => {
   await findUser(socket);
   await getRooms(socket);
 
+  socket.on('iAmTyping', sendTyping(socket));
   socket.on('send', sendMessage(socket.userId));
   socket.on('disconnect', setLastSeen(socket.userId));
 };

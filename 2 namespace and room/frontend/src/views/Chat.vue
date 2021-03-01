@@ -24,7 +24,12 @@
       :continues='messages[index - 1] && message.sender === messages[index - 1].sender'
     )
 
-  send(v-model='message', @send='send')
+  send(
+    v-model='message',
+    :typingUsers='typingUsers.map(t => members[t].name)',
+    @send='send',
+    @keypress='type'
+  )
 </template>
 
 <script>
@@ -50,18 +55,27 @@ export default {
   components: { Room, Send, Message },
   data: function () {
     return {
-      message: ''
+      message: '',
+      lastSendTyping: Date.now()
     };
   },
   methods: {
     ...mapMutations('chat', ['changeRoom']),
     send: function () {
+      if (!this.message.trim()) return;
+
       this.$socket.client.emit('send', {
         text: this.message,
         room: this.currentRoom
       });
 
       this.message = '';
+    },
+    type: function () {
+      if (this.message && Date.now() - this.lastSendTyping > 2000) {
+        this.lastSendTyping = Date.now();
+        this.$socket.client.emit('iAmTyping', this.currentRoom);
+      }
     },
     scrollToEnd: function () {
       this.$nextTick(() => {
@@ -72,7 +86,7 @@ export default {
   },
   computed: {
     ...mapState('chat', ['rooms', 'currentRoom']),
-    ...mapGetters('chat', ['messages', 'members'])
+    ...mapGetters('chat', ['messages', 'members', 'typingUsers'])
   },
   watch: {
     messages: function () {

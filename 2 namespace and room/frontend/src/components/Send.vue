@@ -1,16 +1,30 @@
 <template lang="pug">
 form.chat__send
-  #chat__send__message.chat__send__message(
-    contenteditable,
-    autocapitalize='sentences',
-    autocomplete='on',
-    autocorrect='on',
-    spellcheck,
-    @input='$emit("input", $event.target.innerText)',
-    @keyup.ctrl.enter='$emit("send")'
-  )
+  .chat__send__is-typing {{ typingMessage }}
+    - let n = 1;
+    while n < 4
+      .chat__send__is-typing__dot(
+        class=`chat__send__is-typing__dot--${n++}`,
+        v-show='typingUsers.length'
+      )
 
-  span.chat__send__label(@click='$el.firstChild.focus()', v-show='!value') پیام
+  .chat__send__message__box
+    #chat__send__message.chat__send__message(
+      ref='chatSendInput',
+      contenteditable,
+      autocapitalize='sentences',
+      autocomplete='on',
+      autocorrect='on',
+      spellcheck,
+      @input='$emit("input", $event.target.innerText)',
+      @keyup.ctrl.enter='$emit("send")',
+      @keyup='$emit("keypress")'
+    )
+
+    span.chat__send__label(
+      @click='$refs.chatSendInput.focus()',
+      v-show='!value'
+    ) پیام
 
   svg.chat__send__btn(@click='$emit("send")')
     use(:xlink:href='`${require("@/assets/chatSprite.svg")}#send-button`')
@@ -19,11 +33,25 @@ form.chat__send
 <script>
 export default {
   name: 'chatSend',
-  props: ['value'],
+  props: ['value', 'typingUsers'],
+  computed: {
+    typingMessage: function () {
+      if (!this.typingUsers.length) return '';
+
+      const names =
+        this.typingUsers.length < 3
+          ? this.typingUsers.join(' و ')
+          : `${this.typingUsers.length} نفر`;
+
+      const verb = this.typingUsers.length === 1 ? 'است' : 'هستند';
+
+      return `${names} در حال تایپ کردن ${verb}`;
+    }
+  },
   watch: {
     value: function (to) {
-      if (this.$el.firstChild.innerText !== to)
-        this.$el.firstChild.innerText = to;
+      if (this.$refs.chatSendInput.innerText !== to)
+        this.$refs.chatSendInput.innerText = to;
     }
   }
 };
@@ -60,6 +88,10 @@ export default {
 
     @include round-box($background: #f1f1f1, $box-shadow: none);
     @include scrollbar();
+
+    &__box {
+      position: relative;
+    }
   }
 
   &__label {
@@ -76,6 +108,69 @@ export default {
 
   &__message:focus + &__label {
     opacity: 0;
+  }
+
+  &__is-typing {
+    $font-size: 1.2rem;
+
+    display: flex;
+    margin-bottom: 0.75rem;
+    padding-right: $padding-message-lr;
+
+    height: $font-size * 1.7;
+    align-items: center;
+
+    color: $color-text-gray;
+    font-size: $font-size;
+
+    &__dot {
+      width: 0.75rem;
+      height: 0.75rem;
+      margin-right: 0.5rem;
+
+      background-color: currentColor;
+      border-radius: 50%;
+
+      @for $i from 1 through 3 {
+        @keyframes anim__chat__send__is-typing__dot--#{$i} {
+          0% {
+            transform: scale(1, 1);
+          }
+
+          25% {
+            @if $i == 1 {
+              transform: scale(1, 1.5);
+            } @else {
+              transform: scale(1, 1);
+            }
+          }
+
+          50% {
+            @if $i == 2 {
+              transform: scale(1, 1.5);
+            } @else {
+              transform: scale(1, 0.67);
+            }
+          }
+
+          75% {
+            @if $i == 3 {
+              transform: scale(1, 1.5);
+            } @else {
+              transform: scale(1, 1);
+            }
+          }
+
+          100% {
+            transform: scale(1, 1);
+          }
+        }
+
+        &--#{$i} {
+          animation: anim__chat__send__is-typing__dot--#{$i} 1s linear infinite;
+        }
+      }
+    }
   }
 
   &__btn {
