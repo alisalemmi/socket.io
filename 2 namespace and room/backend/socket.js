@@ -1,5 +1,6 @@
 const cookie = require('cookie');
 const socketio = require('socket.io');
+const messageController = require('./controller/messageController');
 const roomController = require('./controller/roomController');
 const { getUser, setLastSeen } = require('./controller/userController');
 
@@ -35,6 +36,17 @@ const getRooms = async socket => {
   rooms.forEach(room => socket.join(`${room.id}`));
 };
 
+/**
+ * get messages history of a room
+ * @param {import('socket.io').Socket} socket
+ */
+const getHistory = socket => async roomId => {
+  socket.emit('history', {
+    room: roomId,
+    messages: await messageController.getHistory(roomId)
+  });
+};
+
 const sendTyping = socket => room => {
   socket
     .to(room)
@@ -50,13 +62,14 @@ const sendTyping = socket => room => {
  * broadcast received message. also set `sender` and `time`
  * @return {(message: messageType) => void} message
  */
-const sendMessage = userId => message => {
-  io.to(message.room).emit('message', {
-    text: message.text.trim(),
+const sendMessage = userId => async message => {
+  const msg = await messageController.create({
+    text: message.text,
     room: message.room,
-    sender: userId,
-    time: Date.now()
+    sender: userId
   });
+
+  io.to(message.room).emit('message', msg);
 };
 
 /**
@@ -66,6 +79,7 @@ const onConnect = async socket => {
   await findUser(socket);
   await getRooms(socket);
 
+  socket.on('getHistory', getHistory(socket));
   socket.on('iAmTyping', sendTyping(socket));
   socket.on('send', sendMessage(socket.userId));
   socket.on('disconnect', setLastSeen(socket.userId));

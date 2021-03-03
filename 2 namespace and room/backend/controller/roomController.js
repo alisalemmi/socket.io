@@ -38,6 +38,37 @@ exports.getRooms = async userId => {
       localField: 'members',
       foreignField: '_id',
       as: 'members'
+    })
+    .lookup({
+      from: 'messages',
+      let: { id: '$id' },
+      pipeline: [
+        {
+          $match: {
+            $expr: {
+              $eq: ['$$id', '$room']
+            }
+          }
+        },
+        {
+          $sort: { time: -1 }
+        },
+        {
+          $limit: 1
+        },
+        {
+          $project: {
+            _id: false,
+            text: true,
+            time: true
+          }
+        }
+      ],
+      as: 'lastMessage'
+    })
+    .unwind({
+      path: '$lastMessage',
+      preserveNullAndEmptyArrays: true
     });
 
   return rooms;
