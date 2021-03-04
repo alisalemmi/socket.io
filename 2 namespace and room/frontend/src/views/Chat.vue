@@ -1,81 +1,62 @@
 <template lang="pug">
 .chat
-  ul.chat__room
+  transition-group.chat__room(tag='ul')
     room(
       v-for='room in rooms',
       :key='room.id',
       :name='room.name.join("، ")',
-      :image='`/image/${room.image}`',
-      lastTime='8:49',
-      lastMessage='خوبی؟ حالت چطوره؟',
+      :image='`/image/${room.image[0]}`',
+      :lastMessage='room.lastMessage.text',
+      :lastTime='room.lastMessage.time',
       :select='room.id === currentRoom',
       @click='changeRoom(room.id)'
     )
 
   .chat__message
     message(
-      v-for='(message, index) in messages',
-      :key='index',
+      v-for='message in messages',
+      :key='message.id',
       :isSend='message.isSend',
-      :senderName='!message.isSend && members[message.sender].name',
-      :senderImage='!message.isSend && `/image/${members[message.sender].image}`',
+      :senderName='message.senderName',
+      :senderImage='`/image/${message.senderImage}`',
       :text='message.text',
       :time='message.time',
-      :continues='messages[index - 1] && message.sender === messages[index - 1].sender'
+      :continues='message.continues',
+      :rounded='message.rounded'
     )
 
   send(
     v-model='message',
-    :typingUsers='typingUsers.map(t => members[t].name)',
+    :typingUsers='typingUsers',
     @send='send',
-    @keypress='type'
+    @typing='sendTyping'
   )
 </template>
 
 <script>
-import Vue from 'vue';
-import { mapState, mapGetters, mapMutations } from 'vuex';
-import store from '@/store';
-import { io } from 'socket.io-client';
-import VueSocketIOExt from 'vue-socket.io-extended';
+import { mapState, mapGetters, mapActions } from 'vuex';
 import Room from '@/components/Room';
 import Send from '@/components/Send';
 import Message from '@/components/Message';
-
-Vue.use(VueSocketIOExt, io(), {
-  store,
-  actionPrefix: 'action',
-  mutationPrefix: 'mutate',
-  eventToMutationTransformer: s => `${s[0].toUpperCase()}${s.slice(1)}`,
-  eventToActionTransformer: s => `${s[0].toUpperCase()}${s.slice(1)}`
-});
 
 export default {
   name: 'Chat',
   components: { Room, Send, Message },
   data: function () {
     return {
-      message: '',
-      lastSendTyping: Date.now()
+      message: ''
     };
   },
   methods: {
-    ...mapMutations('chat', ['changeRoom']),
+    ...mapActions('chat', [
+      'sendMessage',
+      'sendTyping',
+      'getHistory',
+      'changeRoom'
+    ]),
     send: function () {
-      if (!this.message.trim()) return;
-
-      this.$socket.client.emit('send', {
-        text: this.message,
-        room: this.currentRoom
-      });
-
+      this.sendMessage(this.message);
       this.message = '';
-    },
-    type: function () {
-      if (this.message && Date.now() - this.lastSendTyping > 2000) {
-        this.lastSendTyping = Date.now();
-        this.$socket.client.emit('iAmTyping', this.currentRoom);
-      }
     },
     scrollToEnd: function () {
       this.$nextTick(() => {
@@ -85,13 +66,16 @@ export default {
     }
   },
   computed: {
-    ...mapState('chat', ['rooms', 'currentRoom']),
-    ...mapGetters('chat', ['messages', 'members', 'typingUsers'])
+    ...mapState('chat', ['currentRoom']),
+    ...mapGetters('chat', ['rooms', 'messages', 'members', 'typingUsers'])
   },
   watch: {
     messages: function () {
       this.scrollToEnd();
     }
+  },
+  created: function () {
+    setTimeout(() => this.getHistory(), 500);
   }
 };
 </script>

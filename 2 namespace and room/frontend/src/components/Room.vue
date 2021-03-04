@@ -5,14 +5,57 @@ li.chat__room__box(
 )
   img.chat__room__image(:src='image')
   h4.chat__room__title {{ name }}
-  span.chat__room__date {{ lastTime }}
+  span.chat__room__date {{ getLastTime }}
   p.chat__room__last {{ lastMessage }}
 </template>
 
 <script>
 export default {
   name: 'chatRoom',
-  props: ['name', 'image', 'lastTime', 'lastMessage', 'select']
+  props: ['name', 'image', 'lastTime', 'lastMessage', 'select'],
+  computed: {
+    getLastTime: function () {
+      /**
+       ** How does it works?
+       *
+       *? if time was not in the same year: DD MMMM YYYY
+       *? if time was in the same year: DD MMMM
+       *? if time was in the same week: DDDD
+       *? if time was in the same day: HH:MM
+       *
+       *! if given time was not valid: ''
+       */
+
+      const lastTime = new Date(this.lastTime);
+      const now = new Date();
+
+      if (isNaN(lastTime)) return '';
+
+      const [nDay, nMonth, nYear] = now
+        .toLocaleDateString('fa', { dateStyle: 'medium' })
+        .replace(/([۰-۹])/g, token =>
+          String.fromCharCode(token.charCodeAt(0) - 1728)
+        )
+        .split(' ');
+
+      const [tDay, tMonth, tYear] = lastTime
+        .toLocaleDateString('fa', { dateStyle: 'medium' })
+        .replace(/([۰-۹])/g, token =>
+          String.fromCharCode(token.charCodeAt(0) - 1728)
+        )
+        .split(' ');
+
+      if (nYear !== tYear) return `${tDay} ${tMonth} ${tYear}`;
+      if (nMonth !== tMonth || nDay - tDay >= 7) return `${tDay} ${tMonth}`;
+      if (nDay !== tDay)
+        return lastTime.toLocaleDateString('fa', { weekday: 'long' });
+      return lastTime.toLocaleTimeString('fa', {
+        hour12: false,
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    }
+  }
 };
 </script>
 

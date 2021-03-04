@@ -7,6 +7,9 @@ form.chat__send
         class=`chat__send__is-typing__dot--${n++}`,
         v-show='typingUsers.length'
       )
+    .chat__send__is-typing__dot.chat__send__is-typing__dot--moving(
+      v-show='typingUsers.length'
+    )
 
   .chat__send__message__box
     #chat__send__message.chat__send__message(
@@ -17,8 +20,7 @@ form.chat__send
       autocorrect='on',
       spellcheck,
       @input='$emit("input", $event.target.innerText)',
-      @keyup.ctrl.enter='$emit("send")',
-      @keyup='$emit("keypress")'
+      @keyup.ctrl.enter='$emit("send")'
     )
 
     span.chat__send__label(
@@ -49,9 +51,12 @@ export default {
     }
   },
   watch: {
-    value: function (to) {
+    value: function (to, from) {
       if (this.$refs.chatSendInput.innerText !== to)
         this.$refs.chatSendInput.innerText = to;
+
+      // detect type
+      if (to.length > from.length) this.$emit('typing');
     }
   }
 };
@@ -124,9 +129,12 @@ export default {
     font-size: $font-size;
 
     &__dot {
-      width: 0.75rem;
-      height: 0.75rem;
-      margin-right: 0.5rem;
+      $dot-size: 0.75rem;
+      $dot-margin: 0.4rem;
+
+      width: $dot-size;
+      height: $dot-size;
+      margin-right: $dot-margin;
 
       background-color: currentColor;
       border-radius: 50%;
@@ -169,6 +177,23 @@ export default {
         &--#{$i} {
           animation: anim__chat__send__is-typing__dot--#{$i} 1s linear infinite;
         }
+      }
+
+      &--moving {
+        @keyframes anim__chat__send__is-typing__dot--moving {
+          0%,
+          25% {
+            transform: translateX(3 * $dot-size + 2 * $dot-margin);
+          }
+
+          75%,
+          100% {
+            transform: translateX($dot-size);
+          }
+        }
+
+        margin-right: 0;
+        animation: anim__chat__send__is-typing__dot--moving 1s linear infinite;
       }
     }
   }

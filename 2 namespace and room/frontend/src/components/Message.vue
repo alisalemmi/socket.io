@@ -4,20 +4,42 @@
 )
   img.chat__message__image(v-if='!isSend && !continues', :src='senderImage')
   .chat__message__name(v-if='!isSend && !continues') {{ senderName }}
-  .chat__message__body
+  .chat__message__body(:class='{ "chat__message__body--rounded": rounded }')
     p.chat__message__text {{ text }}
     .chat__message__footer
       svg.chat__message__status
         use(
           :xlink:href='`${require("@/assets/chatSprite.svg")}#double-tick-indicator`'
         )
-      .chat__message__time {{ time }}
+      .chat__message__time {{ getTime }}
 </template>
 
 <script>
 export default {
   name: 'chatMessage',
-  props: ['isSend', 'senderName', 'senderImage', 'text', 'time', 'continues']
+  props: [
+    'isSend',
+    'senderName',
+    'senderImage',
+    'text',
+    'time',
+    'continues',
+    'rounded'
+  ],
+  computed: {
+    getTime: function () {
+      if (!this.time) return;
+
+      let t = new Date(this.time);
+      if (isNaN(t)) t = new Date();
+
+      return t.toLocaleTimeString('fa', {
+        hour12: false,
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    }
+  }
 };
 </script>
 
@@ -38,6 +60,10 @@ export default {
     justify-content: right;
     grid-gap: 0.5rem 1.5rem;
     margin-top: 1.5rem;
+
+    &--continue {
+      margin-top: -0.25rem;
+    }
   }
 
   &__image {
@@ -61,8 +87,12 @@ export default {
     grid-area: body;
     padding: 1rem 1rem 0.25rem 1rem;
 
-    border-radius: 1rem 0 1rem 1rem;
+    border-radius: 1rem 0 0 1rem;
     background-color: darken($color: $background-white-2, $amount: 5);
+
+    &--rounded {
+      border-radius: 1rem 0 1rem 1rem;
+    }
   }
 
   &__text {
@@ -97,13 +127,13 @@ export default {
     .chat__message {
       &__body {
         background-color: lighten($color: $color-primary, $amount: 60);
-        border-radius: 0 1rem 1rem 1rem;
+        border-radius: 0 1rem 1rem 0;
+
+        &--rounded {
+          border-radius: 0 1rem 1rem 1rem;
+        }
       }
     }
-  }
-
-  &__box--continue {
-    margin-top: 0rem;
   }
 }
 </style>
