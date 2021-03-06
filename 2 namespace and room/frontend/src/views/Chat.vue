@@ -13,17 +13,29 @@
     )
 
   .chat__message
-    message(
-      v-for='message in messages',
-      :key='message.id',
-      :isSend='message.isSend',
-      :senderName='message.senderName',
-      :senderImage='`/image/${message.senderImage}`',
-      :text='message.text',
-      :time='message.time',
-      :continues='message.continues',
-      :rounded='message.rounded'
+    infinite-loading(
+      direction='top',
+      :identifier='currentRoom',
+      spinner='spiral',
+      @infinite='loadMessage'
     )
+      span(slot='no-more')
+      span(slot='no-results')
+      span(slot='error')
+
+    template(v-for='message in messages')
+      .chat__timeline(v-if='message.timeline') {{ formatTime(message.time) }}
+
+      message(
+        :key='message.id',
+        :isSend='message.isSend',
+        :senderName='message.senderName',
+        :senderImage='`/image/${message.senderImage}`',
+        :text='message.text',
+        :time='message.time',
+        :continues='message.continues',
+        :rounded='message.rounded'
+      )
 
   send(
     v-model='message',
@@ -35,13 +47,15 @@
 
 <script>
 import { mapState, mapGetters, mapActions } from 'vuex';
+import infiniteLoading from 'vue-infinite-loading';
+import { getDate } from '@/util/time';
 import Room from '@/components/Room';
 import Send from '@/components/Send';
 import Message from '@/components/Message';
 
 export default {
   name: 'Chat',
-  components: { Room, Send, Message },
+  components: { Room, Send, Message, infiniteLoading },
   data: function () {
     return {
       message: ''
@@ -54,6 +68,14 @@ export default {
       'getHistory',
       'changeRoom'
     ]),
+    loadMessage: async function (state) {
+      if (!this.currentRoom) return;
+
+      const messages = await this.getHistory();
+
+      if (messages.length) state.loaded();
+      else state.complete();
+    },
     send: function () {
       this.sendMessage(this.message);
       this.message = '';
@@ -67,15 +89,13 @@ export default {
   },
   computed: {
     ...mapState('chat', ['currentRoom']),
-    ...mapGetters('chat', ['rooms', 'messages', 'members', 'typingUsers'])
+    ...mapGetters('chat', ['rooms', 'messages', 'members', 'typingUsers']),
+    formatTime: () => getDate
   },
   watch: {
     messages: function () {
-      this.scrollToEnd();
+      // this.scrollToEnd();
     }
-  },
-  created: function () {
-    setTimeout(() => this.getHistory(), 500);
   }
 };
 </script>
@@ -117,6 +137,22 @@ export default {
   &__message {
     padding: 0 2rem;
     grid-area: chats;
+  }
+
+  &__timeline {
+    display: flex;
+    justify-content: center;
+
+    position: sticky;
+    top: 2rem;
+
+    width: 8rem;
+    margin: 1.5rem auto 0 auto;
+    padding: 0.25rem 1rem;
+
+    font-size: 1.2rem;
+    border-radius: 10rem;
+    background-color: adjust-color($color: $background-white-2, $alpha: 1);
   }
 }
 </style>

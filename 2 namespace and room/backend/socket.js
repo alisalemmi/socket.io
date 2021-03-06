@@ -40,10 +40,10 @@ const getRooms = async socket => {
  * get messages history of a room
  * @param {import('socket.io').Socket} socket
  */
-const getHistory = socket => async roomId => {
-  socket.emit('history', {
-    room: roomId,
-    messages: await messageController.getHistory(roomId)
+const getHistory = async ({ room, offset }, callback) => {
+  callback({
+    room,
+    messages: await messageController.getHistory(room, offset)
   });
 };
 
@@ -79,7 +79,7 @@ const onConnect = async socket => {
   await findUser(socket);
   await getRooms(socket);
 
-  socket.on('getHistory', getHistory(socket));
+  socket.on('getHistory', getHistory);
   socket.on('iAmTyping', sendTyping(socket));
   socket.on('send', sendMessage(socket.userId));
   socket.on('disconnect', setLastSeen(socket.userId));

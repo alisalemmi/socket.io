@@ -40,19 +40,34 @@ export default {
         });
     },
     messages: state => {
+      let isNextTimeline = true;
+
       return Object.entries(state.rooms[state.currentRoom]?.messages || {})
         .sort(([, a], [, b]) => new Date(a?.time || 0) - new Date(b?.time || 0))
-        .map(([id, message], i, arr) => ({
-          id,
-          ...message,
-          senderName:
-            state.rooms[state.currentRoom]?.members?.[message.sender]?.name,
-          senderImage:
-            state.rooms[state.currentRoom]?.members?.[message.sender]?.image,
-          continues: i > 0 && arr[i - 1][1].isSend === message.isSend,
-          rounded:
-            i >= arr.length - 1 || arr[i + 1][1].isSend !== message.isSend
-        }));
+        .map(([id, message], i, arr) => {
+          const timeline = isNextTimeline;
+
+          isNextTimeline =
+            i >= arr.length - 1 ||
+            new Date(message.time).toLocaleDateString('fa', {
+              dateStyle: 'medium'
+            }) !==
+              new Date(arr[i + 1][1].time).toLocaleDateString('fa', {
+                dateStyle: 'medium'
+              });
+
+          return {
+            id,
+            ...message,
+            senderName:
+              state.rooms[state.currentRoom]?.members?.[message.sender]?.name,
+            senderImage:
+              state.rooms[state.currentRoom]?.members?.[message.sender]?.image,
+            timeline,
+            continues: !timeline && arr[i - 1][1].isSend === message.isSend,
+            rounded: isNextTimeline || arr[i + 1][1].isSend !== message.isSend
+          };
+        });
     },
     members: state => state.rooms[state.currentRoom]?.members,
     typingUsers: state =>
@@ -115,7 +130,7 @@ export default {
           };
       }
     },
-    mutateHistory: (state, history) => {
+    setHistory: (state, history) => {
       if (history.room in state.rooms)
         for (const message of history.messages) {
           Vue.set(state.rooms[history.room].messages, message.id, {
@@ -153,8 +168,17 @@ export default {
       state.currentRoom = newRoomId;
       commit('removeTyping');
     },
-    getHistory: ({ state }) => {
-      socket.emit('getHistory', state.currentRoom);
+    getHistory: ({ state, getters, commit }) => {
+      return new Promise(res =>
+        socket.emit(
+          'getHistory',
+          { room: state.currentRoom, offset: getters.messages.length },
+          history => {
+            commit('setHistory', history);
+            res(history.messages);
+          }
+        )
+      );
     },
     sendMessage: ({ state }, message) => {
       const text = message.trim();

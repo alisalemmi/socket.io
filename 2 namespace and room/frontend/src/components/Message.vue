@@ -15,6 +15,8 @@
 </template>
 
 <script>
+import { getTime } from '@/util/time';
+
 export default {
   name: 'chatMessage',
   props: [
@@ -28,16 +30,7 @@ export default {
   ],
   computed: {
     getTime: function () {
-      if (!this.time) return;
-
-      let t = new Date(this.time);
-      if (isNaN(t)) t = new Date();
-
-      return t.toLocaleTimeString('fa', {
-        hour12: false,
-        hour: '2-digit',
-        minute: '2-digit'
-      });
+      return getTime(this.time);
     }
   }
 };
