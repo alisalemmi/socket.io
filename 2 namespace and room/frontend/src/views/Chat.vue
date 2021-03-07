@@ -35,13 +35,13 @@
         :time='message.time',
         :continues='message.continues',
         :rounded='message.rounded',
-        @contextmenu.prevent.stop='$refs.messageContext.showMenu($event, message)'
+        @contextmenu.prevent.stop='showContextMenu($event, message)'
       )
 
     context-menu(
-      :options='[{ name: "نقل قول" }, { name: "ویرایش" }, { name: "حذف" }]',
+      :options='menuOptions',
       ref='messageContext',
-      @select='contextSelect'
+      @select='contextMenuSelect'
     )
 
   send(
@@ -66,7 +66,13 @@ export default {
   components: { Room, Send, Message, infiniteLoading, ContextMenu },
   data: function () {
     return {
-      message: ''
+      message: '',
+      menuOptions: [
+        { name: 'کپی' },
+        { name: 'نقل قول' },
+        { name: 'ویرایش' },
+        { name: 'حذف' }
+      ]
     };
   },
   methods: {
@@ -88,8 +94,24 @@ export default {
       this.sendMessage(this.message);
       this.message = '';
     },
-    contextSelect: function (e) {
-      console.log('🚀 > e', e);
+    showContextMenu: function (e, message) {
+      this.menuOptions = message.isSend
+        ? [
+            { name: 'کپی' },
+            { name: 'نقل قول' },
+            { name: 'ویرایش' },
+            { name: 'حذف' }
+          ]
+        : [{ name: 'کپی' }, { name: 'نقل قول' }];
+
+      this.$refs.messageContext.showMenu(e, message);
+    },
+    contextMenuSelect: function ({ option, item }) {
+      switch (option.name) {
+        case 'کپی':
+          navigator.clipboard.writeText(item.text);
+          break;
+      }
     },
     scrollToEnd: function () {
       this.$nextTick(() => {
