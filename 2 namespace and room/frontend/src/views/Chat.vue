@@ -146,7 +146,7 @@ export default {
     position: sticky;
     top: 2rem;
 
-    width: 8rem;
+    min-width: 12rem;
     margin: 1.5rem auto 0 auto;
     padding: 0.25rem 1rem;
 
