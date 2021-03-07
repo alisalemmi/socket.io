@@ -1,6 +1,7 @@
 <template lang="pug">
 .chat__message__box(
-  :class='{ "chat__message__box--send": isSend, "chat__message__box--continue": continues }'
+  :class='{ "chat__message__box--send": isSend, "chat__message__box--continue": continues }',
+  @contextmenu='$emit("contextmenu", $event)'
 )
   img.chat__message__image(v-if='!isSend && !continues', :src='senderImage')
   .chat__message__name(v-if='!isSend && !continues') {{ senderName }}

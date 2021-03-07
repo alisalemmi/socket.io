@@ -1,5 +1,5 @@
 <template lang="pug">
-.chat
+.chat(@contextmenu.prevent)
   transition-group.chat__room(tag='ul')
     room(
       v-for='room in rooms',
@@ -34,8 +34,15 @@
         :text='message.text',
         :time='message.time',
         :continues='message.continues',
-        :rounded='message.rounded'
+        :rounded='message.rounded',
+        @contextmenu.prevent.stop='$refs.messageContext.showMenu($event, message)'
       )
+
+    context-menu(
+      :options='[{ name: "نقل قول" }, { name: "ویرایش" }, { name: "حذف" }]',
+      ref='messageContext',
+      @select='contextSelect'
+    )
 
   send(
     v-model='message',
@@ -48,6 +55,7 @@
 <script>
 import { mapState, mapGetters, mapActions } from 'vuex';
 import infiniteLoading from 'vue-infinite-loading';
+import ContextMenu from '@/components/Context';
 import { getDate } from '@/util/time';
 import Room from '@/components/Room';
 import Send from '@/components/Send';
@@ -55,7 +63,7 @@ import Message from '@/components/Message';
 
 export default {
   name: 'Chat',
-  components: { Room, Send, Message, infiniteLoading },
+  components: { Room, Send, Message, infiniteLoading, ContextMenu },
   data: function () {
     return {
       message: ''
@@ -79,6 +87,9 @@ export default {
     send: function () {
       this.sendMessage(this.message);
       this.message = '';
+    },
+    contextSelect: function (e) {
+      console.log('🚀 > e', e);
     },
     scrollToEnd: function () {
       this.$nextTick(() => {
