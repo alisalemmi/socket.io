@@ -28,6 +28,7 @@ form.chat__send
       autocorrect='on',
       spellcheck,
       @input='$emit("input", $event.target.innerText)',
+      @keydown.delete='!value && $emit("cancel")',
       @keyup.ctrl.enter='$emit("submit")'
     )
 
@@ -84,6 +85,9 @@ export default {
       // detect type
       if (to.length > from.length) this.$emit('typing');
     }
+  },
+  mounted() {
+    this.$root.$on('escape', () => this.$emit('cancel'));
   }
 };
 </script>

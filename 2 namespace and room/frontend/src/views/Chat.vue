@@ -167,6 +167,11 @@ export default {
     messages: function () {
       // this.scrollToEnd();
     }
+  },
+  mounted: function () {
+    window.addEventListener('keyup', e => {
+      if (/^Esc(ape)?$/i.test(e.key)) this.$root.$emit('escape');
+    });
   }
 };
 </script>

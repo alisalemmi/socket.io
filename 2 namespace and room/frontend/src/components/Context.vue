@@ -68,18 +68,12 @@ export default {
         item: this.item,
         option
       });
-    },
-    onEscKeyRelease(event) {
-      if (event.keyCode === 27) {
-        this.show = false;
-      }
     }
   },
   mounted() {
-    document.body.addEventListener('keyup', this.onEscKeyRelease);
-  },
-  beforeDestroy() {
-    document.removeEventListener('keyup', this.onEscKeyRelease);
+    this.$root.$on('escape', () => {
+      this.show = false;
+    });
   }
 };
 </script>
