@@ -76,21 +76,11 @@ export default {
       )
   },
   mutations: {
-    mutateMe: (state, me) => {
-      ({ id: state.me.id, name: state.me.name, image: state.me.image } = me);
+    setMyInfo: (state, info) => {
+      ({ id: state.me.id, name: state.me.name, image: state.me.image } = info);
     },
-    mutateRooms: (state, rooms) => {
-      let lastId = '';
-      let lastTime = 0;
-
+    setRooms: (state, rooms) => {
       for (const room of rooms) {
-        const t = new Date(room.lastMessage?.time);
-
-        if (lastTime < t) {
-          lastId = room.id;
-          lastTime = t;
-        }
-
         Vue.set(state.rooms, room.id, {
           members: {},
           messages: {},
@@ -108,40 +98,26 @@ export default {
           });
         }
       }
-
-      state.currentRoom = lastId || rooms[0]?.id;
     },
     addMessage: (state, message) => {
-      if (message.room in state.rooms) {
-        Vue.set(state.rooms[message.room].messages, message.id, {
-          text: message.text,
-          time: message.time,
-          sender: message.sender,
-          isSend: state.me.id === message.sender
-        });
-
-        if (
-          new Date(state.rooms[message.room].lastMessage.time || 0) <
-          new Date(message.time || 0)
-        )
-          state.rooms[message.room].lastMessage = {
-            text: message.text,
-            time: message.time
-          };
+      Vue.set(state.rooms[message.room].messages, message.id, {
+        text: message.text,
+        time: message.time,
+        sender: message.sender,
+        isSend: state.me.id === message.sender,
+        edited: message.edited
+      });
+    },
+    updateLastMessage: (state, message) => {
+      if (
+        new Date(state.rooms[message.room].lastMessage.time || 0) <
+        new Date(message.time || 0)
+      ) {
+        state.rooms[message.room].lastMessage.text = message.text;
+        state.rooms[message.room].lastMessage.time = message.time;
       }
     },
-    setHistory: (state, history) => {
-      if (history.room in state.rooms)
-        for (const message of history.messages) {
-          Vue.set(state.rooms[history.room].messages, message.id, {
-            text: message.text,
-            time: message.time,
-            sender: message.sender,
-            isSend: state.me.id === message.sender
-          });
-        }
-    },
-    mutateTyping: (state, info) => {
+    addTyping: (state, info) => {
       if (info.room !== state.currentRoom) return;
 
       if (state.typing.users.includes(info.userId))
@@ -164,9 +140,22 @@ export default {
     }
   },
   actions: {
-    changeRoom: ({ state, commit }, newRoomId) => {
-      state.currentRoom = newRoomId;
-      commit('removeTyping');
+    onMe: ({ commit }, me) => {
+      commit('setMyInfo', me);
+    },
+    onRooms: ({ getters, commit, dispatch }, rooms) => {
+      commit('setRooms', rooms);
+      dispatch('changeRoom', getters.rooms[0]?.id);
+    },
+    onMessage: ({ state, commit }, message) => {
+      if (message.room in state.rooms) {
+        commit('addMessage', message);
+        commit('updateLastMessage', message);
+        commit('removeTyping', message.sender);
+      }
+    },
+    onTyping: ({ commit }, info) => {
+      commit('addTyping', info);
     },
     getHistory: ({ state, getters, commit }) => {
       return new Promise(res =>
@@ -174,7 +163,11 @@ export default {
           'getHistory',
           { room: state.currentRoom, offset: getters.messages.length },
           history => {
-            commit('setHistory', history);
+            if (history.room in state.rooms)
+              history.messages.forEach(message =>
+                commit('addMessage', { ...message, room: history.room })
+              );
+
             res(history.messages);
           }
         )
@@ -184,22 +177,26 @@ export default {
       const text = message.trim();
       if (!text) return;
 
-      socket.emit('send', {
+      socket.emit('sendMessage', {
         text,
         room: state.currentRoom
       });
+    },
+    editMessage: (context, { id, newText }) => {
+      console.log(id, newText);
     },
     sendTyping: ({ state }) => {
       const now = Date.now();
 
       if (now - state.typing.lastSend > 2000) {
         state.typing.lastSend = now;
-        socket.emit('iAmTyping', state.currentRoom);
+        socket.emit('sendTyping', state.currentRoom);
       }
     },
-    actionMessage: ({ commit }, message) => {
-      commit('addMessage', message);
-      commit('removeTyping', message.sender);
+    changeRoom: ({ state, commit }, newRoomId) => {
+      state.currentRoom = newRoomId;
+      commit('removeTyping');
+      // TODO save message in draft
     }
   }
 };

@@ -47,6 +47,9 @@ const getHistory = async ({ room, offset }, callback) => {
   });
 };
 
+/**
+ * @return {(room: string) => void} room
+ */
 const sendTyping = socket => room => {
   socket
     .to(room)
@@ -80,8 +83,8 @@ const onConnect = async socket => {
   await getRooms(socket);
 
   socket.on('getHistory', getHistory);
-  socket.on('iAmTyping', sendTyping(socket));
-  socket.on('send', sendMessage(socket.userId));
+  socket.on('sendTyping', sendTyping(socket));
+  socket.on('sendMessage', sendMessage(socket.userId));
   socket.on('disconnect', setLastSeen(socket.userId));
 };
 
