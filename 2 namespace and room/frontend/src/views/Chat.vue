@@ -33,6 +33,7 @@
         :senderImage='`/image/${message.senderImage}`',
         :text='message.text',
         :time='message.time',
+        :edited='message.edited',
         :continues='message.continues',
         :rounded='message.rounded',
         @contextmenu.prevent.stop='showContextMenu($event, message)'
@@ -45,10 +46,14 @@
     )
 
   send(
+    ref='chatInput',
     v-model='message',
+    :state='state',
+    :selectedMessage='selectedMessage',
     :typingUsers='typingUsers',
-    @send='send',
-    @typing='sendTyping'
+    @submit='submit',
+    @typing='sendTyping',
+    @cancel='resetState(false)'
   )
 </template>
 
@@ -66,7 +71,9 @@ export default {
   components: { Room, Send, Message, infiniteLoading, ContextMenu },
   data: function () {
     return {
+      state: 'send',
       message: '',
+      selectedMessage: {},
       menuOptions: [
         { name: 'کپی' },
         { name: 'نقل قول' },
@@ -78,6 +85,7 @@ export default {
   methods: {
     ...mapActions('chat', [
       'sendMessage',
+      'editMessage',
       'sendTyping',
       'getHistory',
       'changeRoom'
@@ -90,9 +98,26 @@ export default {
       if (messages.length) state.loaded();
       else state.complete();
     },
-    send: function () {
-      this.sendMessage(this.message);
-      this.message = '';
+    resetState: function (clearInput = false) {
+      this.state = 'send';
+      this.selectedMessage = {};
+
+      if (clearInput) this.message = '';
+    },
+    submit: function () {
+      switch (this.state) {
+        case 'send':
+          this.sendMessage(this.message);
+          break;
+        case 'edit':
+          this.editMessage({
+            id: this.selectedMessage.id,
+            newText: this.message
+          });
+          break;
+      }
+
+      this.resetState(true);
     },
     showContextMenu: function (e, message) {
       this.menuOptions = message.isSend
@@ -110,6 +135,19 @@ export default {
       switch (option.name) {
         case 'کپی':
           navigator.clipboard.writeText(item.text);
+          break;
+        case 'ویرایش':
+          this.state = 'edit';
+          this.selectedMessage = item;
+          this.message = item.text;
+
+          this.$refs.chatInput.focus();
+          break;
+        case 'نقل قول':
+          this.state = 'quote';
+          this.selectedMessage = item;
+
+          this.$refs.chatInput.focus();
           break;
       }
     },

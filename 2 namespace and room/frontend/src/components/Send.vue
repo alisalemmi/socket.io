@@ -14,6 +14,12 @@ form.chat__send
     )
 
   .chat__send__message__box
+    .chat__send__info(v-show='state === "edit" || state === "quote"')
+      +icon('state === "edit" ? "edit" : state === "quote" ? "reply-message" : ""').chat__send__info__icon
+      .chat__send__info__state {{ state === "edit" ? "ویرایش" : state === "quote" ? "نقل قول" : "" }}
+      .chat__send__info__close(@click='$emit("cancel")')
+      .chat__send__info__text {{ selectedMessage.text }}
+
     #chat__send__message.chat__send__message(
       ref='chatSendInput',
       contenteditable,
@@ -22,7 +28,7 @@ form.chat__send
       autocorrect='on',
       spellcheck,
       @input='$emit("input", $event.target.innerText)',
-      @keyup.ctrl.enter='$emit("send")'
+      @keyup.ctrl.enter='$emit("submit")'
     )
 
     span.chat__send__label(
@@ -30,13 +36,32 @@ form.chat__send
       v-show='!value'
     ) پیام
 
-  +icon('send-button').chat__send__btn(@click='$emit("send")')
+  +icon('send-button').chat__send__btn(@click='$emit("submit")')
 </template>
 
 <script>
 export default {
   name: 'chatSend',
-  props: ['value', 'typingUsers'],
+  props: {
+    value: {
+      type: String
+    },
+    state: {
+      type: String,
+      default: 'send'
+    },
+    selectedMessage: {
+      type: Object
+    },
+    typingUsers: {
+      type: Array
+    }
+  },
+  methods: {
+    focus: function () {
+      this.$refs.chatSendInput.focus();
+    }
+  },
   computed: {
     typingMessage: function () {
       if (!this.typingUsers.length) return '';
@@ -70,6 +95,7 @@ export default {
   $padding-message-lr: 2.5rem;
   $font-size: 1.5rem;
   $line-height: 1.5;
+  $background: #f1f1f1;
 
   position: relative;
 
@@ -92,21 +118,22 @@ export default {
     overflow-wrap: break-word;
     -webkit-user-modify: read-write-plaintext-only;
 
-    @include round-box($background: #f1f1f1, $box-shadow: none);
     @include scrollbar();
 
     &__box {
       position: relative;
+      overflow: hidden;
+
+      @include round-box($background: $background, $box-shadow: none);
     }
   }
 
   &__label {
     position: absolute;
-    top: 50%;
+    bottom: $padding-message-tb;
     right: 2.5rem;
 
     color: $color-text-gray-2;
-    transform: translateY(-50%);
     transition: opacity 0.3s ease;
 
     cursor: text;
@@ -195,6 +222,77 @@ export default {
 
         margin-right: 0;
         animation: anim__chat__send__is-typing__dot--moving 1s linear infinite;
+      }
+    }
+  }
+
+  &__info {
+    $icon-size: 2.5rem;
+    $close-size: 2rem;
+
+    display: grid;
+    grid-template-columns: $icon-size 1fr $close-size;
+    grid-template-areas:
+      'icon state close'
+      'icon text text';
+    grid-gap: 0.5rem 1.5rem;
+
+    margin: 1rem 1rem 0 1rem;
+    padding: 1rem;
+
+    border-radius: 1rem;
+    background-color: darken($background, 5%);
+
+    &__icon {
+      width: $icon-size;
+      height: $icon-size;
+      grid-area: icon;
+
+      fill: $color-text;
+    }
+
+    &__state {
+      grid-area: state;
+    }
+
+    &__text {
+      grid-area: text;
+      max-height: 12rem;
+
+      font-size: 1.3rem;
+      user-select: text;
+      white-space: pre-wrap;
+
+      @include scrollbar();
+    }
+
+    &__close {
+      grid-area: close;
+      position: relative;
+      cursor: pointer;
+
+      &::before,
+      &::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        width: $close-size;
+        height: 1px;
+
+        background-color: currentColor;
+        transition: all 0.5s ease;
+      }
+
+      &::before {
+        transform: rotate(45deg);
+      }
+
+      &::after {
+        transform: rotate(-45deg);
+      }
+
+      &:hover {
+        color: $color-secondary;
       }
     }
   }

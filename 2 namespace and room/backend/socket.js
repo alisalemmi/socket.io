@@ -76,6 +76,16 @@ const sendMessage = userId => async message => {
 };
 
 /**
+ * edit an message
+ * @return {(message: messageType) => void} message
+ */
+const editMessage = userId => async (messageId, newText) => {
+  const message = await messageController.edit(messageId, userId, newText);
+
+  if (message) io.to(message.room.toString()).emit('edit', message);
+};
+
+/**
  * @param {import('socket.io').Socket} socket
  */
 const onConnect = async socket => {
@@ -85,6 +95,7 @@ const onConnect = async socket => {
   socket.on('getHistory', getHistory);
   socket.on('sendTyping', sendTyping(socket));
   socket.on('sendMessage', sendMessage(socket.userId));
+  socket.on('sendEdit', editMessage(socket.userId));
   socket.on('disconnect', setLastSeen(socket.userId));
 };
 

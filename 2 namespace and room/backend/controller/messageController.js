@@ -35,3 +35,18 @@ exports.getHistory = async (roomId, offset) => {
 
   return messages;
 };
+
+exports.edit = async (messageId, sender, newText) => {
+  const message = await Message.findOneAndUpdate(
+    { _id: messageId, sender },
+    {
+      edited: true,
+      text: newText
+    },
+    { new: true }
+  );
+
+  return message
+    ? { id: message._id, room: message.room, text: message.text }
+    : false;
+};

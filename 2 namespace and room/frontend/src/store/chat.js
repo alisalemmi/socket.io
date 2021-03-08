@@ -108,6 +108,16 @@ export default {
         edited: message.edited
       });
     },
+    editMessage: (state, newMessage) => {
+      if (
+        newMessage.room in state.rooms &&
+        state.rooms[newMessage.room].messages[newMessage.id]
+      ) {
+        state.rooms[newMessage.room].messages[newMessage.id].text =
+          newMessage.text;
+        state.rooms[newMessage.room].messages[newMessage.id].edited = true;
+      }
+    },
     updateLastMessage: (state, message) => {
       if (
         new Date(state.rooms[message.room].lastMessage.time || 0) <
@@ -154,6 +164,9 @@ export default {
         commit('removeTyping', message.sender);
       }
     },
+    onEdit: ({ commit }, newMessage) => {
+      commit('editMessage', newMessage);
+    },
     onTyping: ({ commit }, info) => {
       commit('addTyping', info);
     },
@@ -183,7 +196,11 @@ export default {
       });
     },
     editMessage: (context, { id, newText }) => {
-      console.log(id, newText);
+      const text = newText.trim();
+      if (!text) return false;
+
+      socket.emit('sendEdit', id, text);
+      return true;
     },
     sendTyping: ({ state }) => {
       const now = Date.now();

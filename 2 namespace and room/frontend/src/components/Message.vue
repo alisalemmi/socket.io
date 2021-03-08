@@ -11,6 +11,7 @@ include ../pug/icon
     p.chat__message__text {{ text }}
     .chat__message__footer
       +icon('double-tick-indicator').chat__message__status
+      +icon('edit').chat__message__status(v-if='edited')
       .chat__message__time {{ getTime }}
 </template>
 
@@ -25,6 +26,7 @@ export default {
     'senderImage',
     'text',
     'time',
+    'edited',
     'continues',
     'rounded'
   ],
@@ -102,6 +104,7 @@ export default {
   &__status {
     width: 1.5rem;
     height: 1.5rem;
+    margin-left: 0.5rem;
 
     fill: currentColor;
   }
