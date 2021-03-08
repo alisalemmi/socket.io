@@ -1,0 +1,6 @@
+mixin icon(iconName)
+  svg&attributes(attributes)
+    if iconName.includes(' ')
+      use(:xlink:href=`\`\${require("@/assets/chatSprite.svg")}#\${${iconName}}\``)
+    else
+      use(:xlink:href=`\`\${require("@/assets/chatSprite.svg")}#${iconName}\``)

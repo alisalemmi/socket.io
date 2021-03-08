@@ -1,4 +1,6 @@
 <template lang="pug">
+include ../pug/icon
+
 .chat__message__box(
   :class='{ "chat__message__box--send": isSend, "chat__message__box--continue": continues }',
   @contextmenu='$emit("contextmenu", $event)'
@@ -8,10 +10,7 @@
   .chat__message__body(:class='{ "chat__message__body--rounded": rounded }')
     p.chat__message__text {{ text }}
     .chat__message__footer
-      svg.chat__message__status
-        use(
-          :xlink:href='`${require("@/assets/chatSprite.svg")}#double-tick-indicator`'
-        )
+      +icon('double-tick-indicator').chat__message__status
       .chat__message__time {{ getTime }}
 </template>
 

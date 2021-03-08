@@ -1,4 +1,6 @@
 <template lang="pug">
+include ../pug/icon
+
 form.chat__send
   .chat__send__is-typing {{ typingMessage }}
     - let n = 1;
@@ -28,8 +30,7 @@ form.chat__send
       v-show='!value'
     ) پیام
 
-  svg.chat__send__btn(@click='$emit("send")')
-    use(:xlink:href='`${require("@/assets/chatSprite.svg")}#send-button`')
+  +icon('send-button').chat__send__btn(@click='$emit("send")')
 </template>
 
 <script>
