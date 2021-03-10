@@ -9,7 +9,7 @@ include ../pug/icon
   .chat__message__name(v-if='!isSend && !continues') {{ senderName }}
   .chat__message__body(:class='{ "chat__message__body--rounded": rounded }')
     .chat__message__quote(
-      v-if='quote.text',
+      v-if='quote',
       @click='$emit("quoteClicked", quote.id)'
     )
       span {{ quote.senderName }}

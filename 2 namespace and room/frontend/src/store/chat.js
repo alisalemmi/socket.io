@@ -58,19 +58,24 @@ export default {
               });
 
           const { quoteRef, ...msg } = message;
-          const quote =
-            state.rooms[state.currentRoom]?.messages?.[quoteRef] || {};
+          const quotedMessage =
+            state.rooms[state.currentRoom]?.messages?.[quoteRef];
+
+          const quote = quotedMessage
+            ? {
+                id: quoteRef,
+                text: quotedMessage.text,
+                senderName:
+                  state.rooms[state.currentRoom]?.members?.[
+                    quotedMessage.sender
+                  ]?.name || state.me.name
+              }
+            : undefined;
 
           return {
             id,
             ...msg,
-            quote: {
-              id: quoteRef,
-              text: quote.text,
-              senderName:
-                state.rooms[state.currentRoom]?.members?.[quote.sender]?.name ||
-                state.me.name
-            },
+            quote,
             senderName:
               state.rooms[state.currentRoom]?.members?.[message.sender]?.name,
             senderImage:
