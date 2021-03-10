@@ -93,7 +93,11 @@ const editMessage = userId => async (messageId, newText) => {
 const deleteMessage = userId => async messageId => {
   const message = await messageController.delete(messageId, userId);
 
-  if (message) io.to(message.room.toString()).emit('delete', message._id);
+  if (message)
+    io.to(message.room.toString()).emit('delete', {
+      id: message._id,
+      room: message.room
+    });
 };
 
 /**

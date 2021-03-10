@@ -42,8 +42,11 @@ export default {
     },
     messages: state => {
       let isNextTimeline = true;
+      const { messages, members } = state.rooms[state.currentRoom];
 
-      return Object.entries(state.rooms[state.currentRoom]?.messages || {})
+      if (!messages) return [];
+
+      return Object.entries(messages)
         .sort(([, a], [, b]) => new Date(a?.time || 0) - new Date(b?.time || 0))
         .map(([id, message], i, arr) => {
           const timeline = isNextTimeline;
@@ -58,17 +61,14 @@ export default {
               });
 
           const { quoteRef, ...msg } = message;
-          const quotedMessage =
-            state.rooms[state.currentRoom]?.messages?.[quoteRef];
+          const quotedMessage = messages[quoteRef];
 
           const quote = quotedMessage
             ? {
                 id: quoteRef,
                 text: quotedMessage.text,
                 senderName:
-                  state.rooms[state.currentRoom]?.members?.[
-                    quotedMessage.sender
-                  ]?.name || state.me.name
+                  members?.[quotedMessage.sender]?.name || state.me.name
               }
             : undefined;
 
@@ -76,10 +76,8 @@ export default {
             id,
             ...msg,
             quote,
-            senderName:
-              state.rooms[state.currentRoom]?.members?.[message.sender]?.name,
-            senderImage:
-              state.rooms[state.currentRoom]?.members?.[message.sender]?.image,
+            senderName: members?.[message.sender]?.name,
+            senderImage: members?.[message.sender]?.image,
             timeline,
             continues: !timeline && arr[i - 1][1].isSend === message.isSend,
             rounded: isNextTimeline || arr[i + 1][1].isSend !== message.isSend
@@ -144,8 +142,8 @@ export default {
         state.rooms[newMessage.room].messages[newMessage.id].edited = true;
       }
     },
-    deleteMessage: (state, id) => {
-      Vue.delete(state.rooms[state.currentRoom].messages, id);
+    deleteMessage: (state, message) => {
+      Vue.delete(state.rooms[state.message.room].messages, message.id);
     },
     updateLastMessage: (state, message) => {
       if (
@@ -198,8 +196,8 @@ export default {
     onEdit: ({ commit }, newMessage) => {
       commit('editMessage', newMessage);
     },
-    onDelete: ({ commit }, id) => {
-      commit('deleteMessage', id);
+    onDelete: ({ commit }, message) => {
+      commit('deleteMessage', message);
     },
     onTyping: ({ commit }, info) => {
       commit('addTyping', info);
