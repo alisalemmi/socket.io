@@ -1,12 +1,12 @@
 <template lang="pug">
 include ../pug/icon
 
-.chat__message__box(
+aside.chat__message__box(
   :class='{ "chat__message__box--send": isSend, "chat__message__box--continue": continues }',
   @contextmenu='$emit("contextmenu", $event)'
 )
   img.chat__message__image(v-if='!isSend && !continues', :src='senderImage')
-  .chat__message__name(v-if='!isSend && !continues') {{ senderName }}
+  span.chat__message__name(v-if='!isSend && !continues') {{ senderName }}
   .chat__message__body(:class='{ "chat__message__body--rounded": rounded }')
     .chat__message__quote(
       v-if='quote',
@@ -47,6 +47,20 @@ export default {
 
 <style lang="scss">
 .chat__message {
+  $background--send: lighten(
+    $color: $color-primary,
+    $amount: 60
+  );
+  $background--receive: darken(
+    $color: $background-white-2,
+    $amount: 5
+  );
+
+  $border: 1rem 0 0 1rem;
+  $border-send: 0 1rem 1rem 0;
+  $border--round: 1rem 0 1rem 1rem;
+  $border-send--round: 0 1rem 1rem 1rem;
+
   display: flex;
   flex-direction: column;
 
@@ -89,11 +103,11 @@ export default {
     grid-area: body;
     padding: 1rem 1rem 0.25rem 1rem;
 
-    border-radius: 1rem 0 0 1rem;
-    background-color: darken($color: $background-white-2, $amount: 5);
+    border-radius: $border;
+    background-color: $background--receive;
 
     &--rounded {
-      border-radius: 1rem 0 1rem 1rem;
+      border-radius: $border--round;
     }
   }
 
@@ -153,11 +167,11 @@ export default {
 
     .chat__message {
       &__body {
-        background-color: lighten($color: $color-primary, $amount: 60);
-        border-radius: 0 1rem 1rem 0;
+        background-color: $background--send;
+        border-radius: $border-send;
 
         &--rounded {
-          border-radius: 0 1rem 1rem 1rem;
+          border-radius: $border-send--round;
         }
       }
     }
