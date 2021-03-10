@@ -1,6 +1,10 @@
 const { ObjectId } = require('mongoose').Types;
 const Message = require('../model/messageModel');
 
+/**
+ * create a new message
+ * @param {{text: string, room: string, sender: string, quoteRef: string}} message
+ */
 exports.create = message => {
   return Message.create({
     text: message.text,
@@ -38,6 +42,12 @@ exports.getHistory = async (roomId, offset) => {
   return messages;
 };
 
+/**
+ * edit a message if it was sended by this sender
+ * @param {string} messageId
+ * @param {string} sender sender id
+ * @param {string} newText
+ */
 exports.edit = async (messageId, sender, newText) => {
   const message = await Message.findOneAndUpdate(
     { _id: messageId, sender },
@@ -51,4 +61,16 @@ exports.edit = async (messageId, sender, newText) => {
   return message
     ? { id: message._id, room: message.room, text: message.text }
     : false;
+};
+
+/**
+ * delete a message if it was sended by this sender
+ * @param {string} messageId
+ * @param {string} sender sender id
+ */
+exports.delete = (messageId, sender) => {
+  const message = Message.findOneAndDelete({ _id: messageId, sender });
+  Message.updateMany({ quoteRef: messageId }, { $unset: { quoteRef: '' } });
+
+  return message;
 };

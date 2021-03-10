@@ -144,6 +144,9 @@ export default {
         state.rooms[newMessage.room].messages[newMessage.id].edited = true;
       }
     },
+    deleteMessage: (state, id) => {
+      Vue.delete(state.rooms[state.currentRoom].messages, id);
+    },
     updateLastMessage: (state, message) => {
       if (
         new Date(state.rooms[message.room].lastMessage.time || 0) <
@@ -195,6 +198,9 @@ export default {
     onEdit: ({ commit }, newMessage) => {
       commit('editMessage', newMessage);
     },
+    onDelete: ({ commit }, id) => {
+      commit('deleteMessage', id);
+    },
     onTyping: ({ commit }, info) => {
       commit('addTyping', info);
     },
@@ -231,6 +237,9 @@ export default {
 
       socket.emit('sendEdit', id, text);
       return true;
+    },
+    deleteMessage: (context, id) => {
+      socket.emit('sendDelete', id);
     },
     sendTyping: ({ state }) => {
       const now = Date.now();

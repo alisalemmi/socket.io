@@ -77,13 +77,23 @@ const sendMessage = userId => async message => {
 };
 
 /**
- * edit an message
+ * edit a message
  * @return {(message: messageType) => void} message
  */
 const editMessage = userId => async (messageId, newText) => {
   const message = await messageController.edit(messageId, userId, newText);
 
   if (message) io.to(message.room.toString()).emit('edit', message);
+};
+
+/**
+ * delete a message
+ * @return {(message: messageType) => void} message
+ */
+const deleteMessage = userId => async messageId => {
+  const message = await messageController.delete(messageId, userId);
+
+  if (message) io.to(message.room.toString()).emit('delete', message._id);
 };
 
 /**
@@ -97,6 +107,7 @@ const onConnect = async socket => {
   socket.on('sendTyping', sendTyping(socket));
   socket.on('sendMessage', sendMessage(socket.userId));
   socket.on('sendEdit', editMessage(socket.userId));
+  socket.on('sendDelete', deleteMessage(socket.userId));
   socket.on('disconnect', setLastSeen(socket.userId));
 };
 

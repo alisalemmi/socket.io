@@ -1,7 +1,16 @@
 <template lang="pug">
-#app
+#app(@contextmenu.prevent)
   router-view
+  prompt
 </template>
+
+<script>
+import Prompt from '@/components/Prompt';
+
+export default {
+  components: { Prompt }
+};
+</script>
 
 <style lang="scss">
 @font-face {

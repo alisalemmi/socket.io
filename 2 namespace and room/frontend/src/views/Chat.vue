@@ -1,5 +1,5 @@
 <template lang="pug">
-.chat(@contextmenu.prevent)
+.chat
   transition-group.chat__room(tag='ul')
     room(
       v-for='room in rooms',
@@ -64,6 +64,7 @@
 import { mapState, mapGetters, mapActions } from 'vuex';
 import infiniteLoading from 'vue-infinite-loading';
 import ContextMenu from '@/components/Context';
+import { prompt } from '@/components/Prompt';
 import { getDate } from '@/util/time';
 import Room from '@/components/Room';
 import Send from '@/components/Send';
@@ -89,6 +90,7 @@ export default {
     ...mapActions('chat', [
       'sendMessage',
       'editMessage',
+      'deleteMessage',
       'sendTyping',
       'getHistory',
       'changeRoom'
@@ -155,6 +157,18 @@ export default {
           this.selectedMessage = item;
 
           this.$refs.chatInput.focus();
+          break;
+        case 'حذف':
+          prompt(
+            {
+              title: 'حذف پیام',
+              text: 'آیا از حذف پیام اطمینان دارید؟',
+              btnYes: 'حذف'
+            },
+            res => {
+              if (res) this.deleteMessage(item.id);
+            }
+          );
           break;
       }
     },
