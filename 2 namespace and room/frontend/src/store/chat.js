@@ -15,7 +15,8 @@ export default {
       users: [],
       timeout: {},
       lastSend: 0
-    }
+    },
+    lostMessages: new Set()
   },
   getters: {
     rooms: state => {
@@ -56,9 +57,20 @@ export default {
                 dateStyle: 'medium'
               });
 
+          const { quoteRef, ...msg } = message;
+          const quote =
+            state.rooms[state.currentRoom]?.messages?.[quoteRef] || {};
+
           return {
             id,
-            ...message,
+            ...msg,
+            quote: {
+              id: quoteRef,
+              text: quote.text,
+              senderName:
+                state.rooms[state.currentRoom]?.members?.[quote.sender]?.name ||
+                state.me.name
+            },
             senderName:
               state.rooms[state.currentRoom]?.members?.[message.sender]?.name,
             senderImage:
@@ -105,8 +117,17 @@ export default {
         time: message.time,
         sender: message.sender,
         isSend: state.me.id === message.sender,
-        edited: message.edited
+        edited: message.edited,
+        quoteRef: message.quoteRef
       });
+
+      state.lostMessages.delete(message.id);
+
+      if (
+        message.quoteRef &&
+        !(message.quoteRef in state.rooms[message.room].messages)
+      )
+        state.lostMessages.add(message.quoteRef);
     },
     editMessage: (state, newMessage) => {
       if (
@@ -157,12 +178,14 @@ export default {
       commit('setRooms', rooms);
       dispatch('changeRoom', getters.rooms[0]?.id);
     },
-    onMessage: ({ state, commit }, message) => {
+    onMessage: ({ state, commit, dispatch }, message) => {
       if (message.room in state.rooms) {
         commit('addMessage', message);
         commit('updateLastMessage', message);
         commit('removeTyping', message.sender);
       }
+
+      dispatch('handleLostMessages');
     },
     onEdit: ({ commit }, newMessage) => {
       commit('editMessage', newMessage);
@@ -170,7 +193,7 @@ export default {
     onTyping: ({ commit }, info) => {
       commit('addTyping', info);
     },
-    getHistory: ({ state, getters, commit }) => {
+    getHistory: ({ state, getters, commit, dispatch }) => {
       return new Promise(res =>
         socket.emit(
           'getHistory',
@@ -182,16 +205,18 @@ export default {
               );
 
             res(history.messages);
+            if (history.messages.length) dispatch('handleLostMessages');
           }
         )
       );
     },
-    sendMessage: ({ state }, message) => {
+    sendMessage: ({ state }, { message, quoteRef }) => {
       const text = message.trim();
       if (!text) return;
 
       socket.emit('sendMessage', {
         text,
+        quoteRef,
         room: state.currentRoom
       });
     },
@@ -209,6 +234,9 @@ export default {
         state.typing.lastSend = now;
         socket.emit('sendTyping', state.currentRoom);
       }
+    },
+    handleLostMessages: ({ state, dispatch }) => {
+      if (state.lostMessages.size) dispatch('getHistory');
     },
     changeRoom: ({ state, commit }, newRoomId) => {
       state.currentRoom = newRoomId;

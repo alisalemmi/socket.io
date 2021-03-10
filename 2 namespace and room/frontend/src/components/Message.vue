@@ -8,6 +8,12 @@ include ../pug/icon
   img.chat__message__image(v-if='!isSend && !continues', :src='senderImage')
   .chat__message__name(v-if='!isSend && !continues') {{ senderName }}
   .chat__message__body(:class='{ "chat__message__body--rounded": rounded }')
+    .chat__message__quote(
+      v-if='quote.text',
+      @click='$emit("quoteClicked", quote.id)'
+    )
+      span {{ quote.senderName }}
+      p.chat__message__quote__text {{ quote.text }}
     p.chat__message__text {{ text }}
     .chat__message__footer
       +icon('double-tick-indicator').chat__message__status
@@ -27,6 +33,7 @@ export default {
     'text',
     'time',
     'edited',
+    'quote',
     'continues',
     'rounded'
   ],
@@ -87,6 +94,30 @@ export default {
 
     &--rounded {
       border-radius: 1rem 0 1rem 1rem;
+    }
+  }
+
+  &__quote {
+    $font-size: 1.3rem;
+    $line-number: 5;
+
+    padding-right: 1rem;
+    border-right: 0.25rem solid currentColor;
+
+    font-size: $font-size;
+    color: $color-text-gray-2;
+    cursor: pointer;
+
+    &__text {
+      display: block;
+      display: -webkit-box;
+      max-height: $line-number * $font-size * 1.7;
+      margin: 0.5rem auto;
+
+      -webkit-line-clamp: $line-number;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
   }
 

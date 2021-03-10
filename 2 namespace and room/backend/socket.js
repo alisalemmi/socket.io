@@ -68,6 +68,7 @@ const sendTyping = socket => room => {
 const sendMessage = userId => async message => {
   const msg = await messageController.create({
     text: message.text,
+    quoteRef: message.quoteRef || undefined, // prevent empty string
     room: message.room,
     sender: userId
   });

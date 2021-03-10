@@ -11,6 +11,10 @@ const messageSchema = mongoose.Schema({
     ref: 'user',
     required: true
   },
+  quoteRef: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'message'
+  },
   text: {
     type: String,
     required: true,

@@ -5,7 +5,8 @@ exports.create = message => {
   return Message.create({
     text: message.text,
     room: message.room,
-    sender: message.sender
+    sender: message.sender,
+    quoteRef: message.quoteRef
   });
 };
 
@@ -29,7 +30,8 @@ exports.getHistory = async (roomId, offset) => {
       text: true,
       time: true,
       seen: true,
-      edited: true
+      edited: true,
+      quoteRef: true
     })
     .sort({ time: 1 });
 

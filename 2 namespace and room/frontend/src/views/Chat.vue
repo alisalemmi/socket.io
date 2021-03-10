@@ -28,14 +28,17 @@
 
       message(
         :key='message.id',
+        :id='message.id',
         :isSend='message.isSend',
         :senderName='message.senderName',
         :senderImage='`/image/${message.senderImage}`',
         :text='message.text',
         :time='message.time',
         :edited='message.edited',
+        :quote='message.quote',
         :continues='message.continues',
         :rounded='message.rounded',
+        @quoteClicked='quoteClicked',
         @contextmenu.prevent.stop='showContextMenu($event, message)'
       )
 
@@ -106,8 +109,12 @@ export default {
     },
     submit: function () {
       switch (this.state) {
+        case 'quote':
         case 'send':
-          this.sendMessage(this.message);
+          this.sendMessage({
+            message: this.message,
+            quoteRef: this.selectedMessage.id
+          });
           break;
         case 'edit':
           this.editMessage({
@@ -150,6 +157,11 @@ export default {
           this.$refs.chatInput.focus();
           break;
       }
+    },
+    quoteClicked: function (quoteRef) {
+      document
+        .getElementById(quoteRef)
+        .scrollIntoView({ behavior: 'smooth', block: 'center' });
     },
     scrollToEnd: function () {
       this.$nextTick(() => {
