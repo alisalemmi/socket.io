@@ -15,32 +15,43 @@ export default {
       users: [],
       timeout: {},
       lastSend: 0
-    },
-    lostMessages: new Set()
+    }
   },
   getters: {
-    rooms: state => {
+    lastMessages: state => {
+      const lastMessages = {};
+
+      for (const id in state.rooms) {
+        lastMessages[id] = Object.values(state.rooms[id].messages).reduce(
+          (acc, cur) =>
+            new Date(acc.time || 0) < new Date(cur.time || 0) ? cur : acc,
+          {}
+        );
+      }
+
+      return lastMessages;
+    },
+    rooms: (state, getters) => {
       return Object.entries(state.rooms)
         .sort(
-          ([, a], [, b]) =>
-            new Date(b?.lastMessage?.time || 0) -
-            new Date(a?.lastMessage?.time || 0)
+          ([a], [b]) =>
+            new Date(getters.lastMessages[b].time || 0) -
+            new Date(getters.lastMessages[a].time || 0)
         )
         .map(([id, room]) => {
           const members = Object.values(room.members);
 
           return {
             id,
-            lastMessage: {
-              text: room.lastMessage.text,
-              time: room.lastMessage.time
-            },
+            lastMessage: getters.lastMessages[id],
             name: members.map(m => m.name),
             image: members.map(m => m.image)
           };
         });
     },
     messages: state => {
+      if (!state.rooms[state.currentRoom]) return [];
+
       let isNextTimeline = true;
       const { messages, members } = state.rooms[state.currentRoom];
 
@@ -78,9 +89,10 @@ export default {
             quote,
             senderName: members?.[message.sender]?.name,
             senderImage: members?.[message.sender]?.image,
+            isSend: state.me.id === message.sender,
             timeline,
-            continues: !timeline && arr[i - 1][1].isSend === message.isSend,
-            rounded: isNextTimeline || arr[i + 1][1].isSend !== message.isSend
+            continues: !timeline && arr[i - 1][1].sender === message.sender,
+            rounded: isNextTimeline || arr[i + 1][1].sender !== message.sender
           };
         });
     },
@@ -99,12 +111,23 @@ export default {
         Vue.set(state.rooms, room.id, {
           members: {},
           messages: {},
-          lastMessage: {
-            text: room.lastMessage?.text,
-            time: room.lastMessage?.time
-          }
+          lostMessages: new Set()
         });
 
+        // set all info of last message except quoteRef
+        if (room.lastMessage) {
+          Vue.set(state.rooms[room.id].messages, room.lastMessage.id, {
+            text: room.lastMessage.text,
+            time: room.lastMessage.time,
+            sender: room.lastMessage.sender,
+            edited: room.lastMessage.edited,
+            quoteRef: room.lastMessage.quoteRef
+          });
+
+          if (room.lastMessage.quoteRef)
+            state.rooms[room.id].lostMessages.add(room.lastMessage.quoteRef);
+        }
+        // set members
         for (const member of room.members) {
           Vue.set(state.rooms[room.id].members, member._id, {
             name: member.name,
@@ -115,22 +138,22 @@ export default {
       }
     },
     addMessage: (state, message) => {
-      Vue.set(state.rooms[message.room].messages, message.id, {
+      const room = state.rooms[message.room];
+
+      if (!room) return;
+
+      Vue.set(room.messages, message.id, {
         text: message.text,
         time: message.time,
         sender: message.sender,
-        isSend: state.me.id === message.sender,
         edited: message.edited,
         quoteRef: message.quoteRef
       });
 
-      state.lostMessages.delete(message.id);
+      room.lostMessages.delete(message.id);
 
-      if (
-        message.quoteRef &&
-        !(message.quoteRef in state.rooms[message.room].messages)
-      )
-        state.lostMessages.add(message.quoteRef);
+      if (message.quoteRef && !(message.quoteRef in room.messages))
+        room.lostMessages.add(message.quoteRef);
     },
     editMessage: (state, newMessage) => {
       if (
@@ -143,16 +166,7 @@ export default {
       }
     },
     deleteMessage: (state, message) => {
-      Vue.delete(state.rooms[state.message.room].messages, message.id);
-    },
-    updateLastMessage: (state, message) => {
-      if (
-        new Date(state.rooms[message.room].lastMessage.time || 0) <
-        new Date(message.time || 0)
-      ) {
-        state.rooms[message.room].lastMessage.text = message.text;
-        state.rooms[message.room].lastMessage.time = message.time;
-      }
+      Vue.delete(state.rooms[message.room].messages, message.id);
     },
     addTyping: (state, info) => {
       if (info.room !== state.currentRoom) return;
@@ -187,11 +201,10 @@ export default {
     onMessage: ({ state, commit, dispatch }, message) => {
       if (message.room in state.rooms) {
         commit('addMessage', message);
-        commit('updateLastMessage', message);
         commit('removeTyping', message.sender);
       }
 
-      dispatch('handleLostMessages');
+      dispatch('handleLostMessages', message.room);
     },
     onEdit: ({ commit }, newMessage) => {
       commit('editMessage', newMessage);
@@ -214,7 +227,9 @@ export default {
               );
 
             res(history.messages);
-            if (history.messages.length) dispatch('handleLostMessages');
+
+            if (history.messages.length)
+              dispatch('handleLostMessages', history.room);
           }
         )
       );
@@ -247,8 +262,8 @@ export default {
         socket.emit('sendTyping', state.currentRoom);
       }
     },
-    handleLostMessages: ({ state, dispatch }) => {
-      if (state.lostMessages.size) dispatch('getHistory');
+    handleLostMessages: ({ state, dispatch }, room) => {
+      if (state.rooms[room]?.lostMessages?.size) dispatch('getHistory');
     },
     changeRoom: ({ state, commit }, newRoomId) => {
       state.currentRoom = newRoomId;

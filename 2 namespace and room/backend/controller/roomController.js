@@ -59,8 +59,13 @@ exports.getRooms = async userId => {
         {
           $project: {
             _id: false,
+            id: '$_id',
+            sender: true,
             text: true,
-            time: true
+            time: true,
+            seen: true,
+            edited: true,
+            quoteRef: true
           }
         }
       ],
