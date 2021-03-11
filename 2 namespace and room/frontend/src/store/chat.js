@@ -98,9 +98,9 @@ export default {
     },
     members: state => state.rooms[state.currentRoom]?.members,
     typingUsers: state =>
-      state.typing.users.map(
-        userId => state.rooms[state.currentRoom]?.members?.[userId]?.name
-      )
+      state.typing.users
+        .map(userId => state.rooms[state.currentRoom]?.members?.[userId]?.name)
+        .filter(name => name)
   },
   mutations: {
     setMyInfo: (state, info) => {

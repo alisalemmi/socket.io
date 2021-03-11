@@ -242,9 +242,6 @@ export default {
   }
 
   &__timeline {
-    display: flex;
-    justify-content: center;
-
     position: sticky;
     top: 2rem;
 
@@ -253,6 +250,7 @@ export default {
     padding: 0.25rem 1rem;
 
     font-size: 1.2rem;
+    text-align: center;
     border-radius: 10rem;
     background-color: adjust-color($color: $background-white-2, $alpha: 1);
   }
