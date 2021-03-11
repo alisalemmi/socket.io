@@ -23,14 +23,22 @@ export const getDate = (time, getHour = false) => {
   if (isNaN(t)) return '';
 
   const [nDay, nMonth, nYear] = now
-    .toLocaleDateString('fa', { dateStyle: 'medium' })
+    .toLocaleDateString('fa', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    })
     .replace(/([۰-۹])/g, token =>
       String.fromCharCode(token.charCodeAt(0) - 1728)
     )
     .split(' ');
 
   const [tDay, tMonth, tYear] = t
-    .toLocaleDateString('fa', { dateStyle: 'medium' })
+    .toLocaleDateString('fa', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    })
     .replace(/([۰-۹])/g, token =>
       String.fromCharCode(token.charCodeAt(0) - 1728)
     )
