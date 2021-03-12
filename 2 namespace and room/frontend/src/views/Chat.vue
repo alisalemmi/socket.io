@@ -4,8 +4,7 @@
     room(
       v-for='room in rooms',
       :key='room.id',
-      :name='room.name.join("، ")',
-      :image='`/image/${room.image[0]}`',
+      :members='room.members',
       :lastMessage='room.lastMessage.text',
       :lastTime='room.lastMessage.time',
       :select='room.id === currentRoom',

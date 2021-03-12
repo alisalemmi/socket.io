@@ -38,16 +38,11 @@ export default {
             new Date(getters.lastMessages[b].time || 0) -
             new Date(getters.lastMessages[a].time || 0)
         )
-        .map(([id, room]) => {
-          const members = Object.values(room.members);
-
-          return {
-            id,
-            lastMessage: getters.lastMessages[id],
-            name: members.map(m => m.name),
-            image: members.map(m => m.image)
-          };
-        });
+        .map(([id, room]) => ({
+          id,
+          lastMessage: getters.lastMessages[id],
+          members: room.members
+        }));
     },
     messages: state => {
       if (!state.rooms[state.currentRoom]) return [];
@@ -214,6 +209,12 @@ export default {
     },
     onTyping: ({ commit }, info) => {
       commit('addTyping', info);
+    },
+    onUserConnect: (context, userId) => {
+      console.log(`${userId} connect`);
+    },
+    onUserDisconnect: (context, userId) => {
+      console.log(`${userId} disconnect`);
     },
     getHistory: ({ state, getters, commit, dispatch }) => {
       return new Promise(res =>

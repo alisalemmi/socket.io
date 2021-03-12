@@ -1,5 +1,6 @@
 const cookie = require('cookie');
 const socketio = require('socket.io');
+const redis = require('./db/redis');
 const messageController = require('./controller/messageController');
 const roomController = require('./controller/roomController');
 const { getUser, setLastSeen } = require('./controller/userController');
@@ -30,10 +31,48 @@ const findUser = async socket => {
  */
 const getRooms = async socket => {
   const rooms = await roomController.getRooms(socket.userId);
+
+  const friends = [
+    ...new Set(
+      ...rooms.map(room => room.members.map(member => member._id.toString()))
+    )
+  ];
+
+  const res = await redis.smismember('onlineUsers', friends);
+  const onlineFriends = Object.fromEntries(
+    friends.map((_, i) => [friends[i], res[i]])
+  );
+
+  rooms.forEach(room =>
+    room.members.forEach(member => {
+      if (onlineFriends[member._id]) member.lastSeen = 'online';
+    })
+  );
+
   socket.emit('rooms', rooms);
 
   // join rooms
   rooms.forEach(room => socket.join(`${room.id}`));
+};
+
+/**
+ * @param {import('socket.io').Socket} socket
+ * @param {boolean} status connect or disconnect
+ */
+const updateUserStatus = (socket, status) => {
+  if (status) {
+    redis.sadd('onlineUsers', socket.userId.toString());
+
+    socket.rooms.forEach(room =>
+      socket.to(room).emit('userConnect', socket.userId)
+    );
+  } else {
+    redis.srem('onlineUsers', socket.userId.toString());
+
+    socket.rooms.forEach(room =>
+      socket.to(room).emit('userDisconnect', socket.userId)
+    );
+  }
 };
 
 /**
@@ -103,16 +142,25 @@ const deleteMessage = userId => async messageId => {
 /**
  * @param {import('socket.io').Socket} socket
  */
+const onDisconnect = socket => () => {
+  setLastSeen(socket.userId);
+  updateUserStatus(socket, false);
+};
+
+/**
+ * @param {import('socket.io').Socket} socket
+ */
 const onConnect = async socket => {
   await findUser(socket);
   await getRooms(socket);
+  updateUserStatus(socket, true);
 
   socket.on('getHistory', getHistory);
   socket.on('sendTyping', sendTyping(socket));
   socket.on('sendMessage', sendMessage(socket.userId));
   socket.on('sendEdit', editMessage(socket.userId));
   socket.on('sendDelete', deleteMessage(socket.userId));
-  socket.on('disconnect', setLastSeen(socket.userId));
+  socket.on('disconnecting', onDisconnect(socket));
 };
 
 io.on('connect', onConnect);

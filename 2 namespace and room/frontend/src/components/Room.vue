@@ -3,7 +3,11 @@ li.chat__room__box(
   :class='{ "chat__room__box--select": select }',
   @click='$emit("click", $event)'
 )
-  img.chat__room__image(:src='image')
+  img.chat__room__image(
+    v-for='(member, id) in members',
+    :key='id',
+    :src='`/image/${member.image}`'
+  )
   h4.chat__room__title {{ name }}
   span.chat__room__date {{ getLastTime }}
   p.chat__room__last {{ lastMessage }}
@@ -14,8 +18,14 @@ import { getDate } from '@/util/time';
 
 export default {
   name: 'chatRoom',
-  props: ['name', 'image', 'lastTime', 'lastMessage', 'select'],
+  props: ['members', 'lastTime', 'lastMessage', 'select'],
   computed: {
+    name: function () {
+      const names = Object.values(this.members).map(member => member.name);
+      const lastName = names.pop();
+
+      return names.length ? `${names.join('، ')} و ${lastName}` : lastName;
+    },
     getLastTime: function () {
       return getDate(this.lastTime, true);
     }
