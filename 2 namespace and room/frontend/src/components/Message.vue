@@ -86,6 +86,7 @@ export default {
     display: block;
     width: 4rem;
     height: 4rem;
+    object-fit: cover;
     grid-area: image;
 
     border-radius: 50%;
