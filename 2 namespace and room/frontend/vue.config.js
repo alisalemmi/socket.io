@@ -3,6 +3,9 @@ module.exports = {
     loaderOptions: {
       sass: {
         prependData: `
+          @use 'sass:math';
+          @use 'sass:list';
+          @use 'sass:map';
           @import "@/scss/_var.scss";
           @import "@/scss/_utility.scss";
         `

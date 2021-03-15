@@ -3,11 +3,27 @@ li.chat__room__box(
   :class='{ "chat__room__box--select": select }',
   @click='$emit("click", $event)'
 )
-  img.chat__room__image(
-    v-for='(member, id) in members',
-    :key='id',
-    :src='`/image/${member.image}`'
-  )
+  .chat__room__image__box
+    template(v-for='(member, index) in firstMembers')
+      img.chat__room__image(
+        v-if='isNaN(member)',
+        :key='index',
+        :class='`chat__room__image--${firstMembers.length}-${index}`',
+        :src='`/image/${member.image}`',
+        :alt='member.name',
+        :title='member.name'
+      )
+      .chat__room__image.chat__room__image--more(
+        v-else,
+        :key='index',
+        :class='`chat__room__image--${firstMembers.length}-${index}`'
+      ) +{{ member }}
+
+    .chat__room__status(
+      v-if='firstMembers.length === 1',
+      v-show='firstMembers[0].lastSeen === "online"'
+    )
+
   h4.chat__room__title {{ name }}
   span.chat__room__date {{ getLastTime }}
   p.chat__room__last {{ lastMessage }}
@@ -26,6 +42,15 @@ export default {
 
       return names.length ? `${names.join('، ')} و ${lastName}` : lastName;
     },
+    firstMembers: function () {
+      const members = Object.values(this.members);
+      const firstMembers = members.slice(0, members.length === 4 ? 4 : 3);
+
+      if (members.length - firstMembers.length)
+        firstMembers.push(members.length - firstMembers.length);
+
+      return firstMembers;
+    },
     getLastTime: function () {
       return getDate(this.lastTime, true);
     }
@@ -37,6 +62,7 @@ export default {
 .chat__room {
   $padding-tb: 2rem;
   $padding-lr: 1.5rem;
+  $image-size: 5rem;
   $scroll-width: 0.75rem;
 
   background-color: $background-white-2;
@@ -46,7 +72,7 @@ export default {
 
   &__box {
     display: grid;
-    grid-template-columns: 5rem 1fr max-content;
+    grid-template-columns: $image-size 1fr max-content;
     grid-template-areas:
       'image title date'
       'image last last';
@@ -69,12 +95,114 @@ export default {
 
   &__image {
     display: block;
-    width: 5rem;
-    height: 5rem;
-    grid-area: image;
-    align-self: center;
+    position: absolute;
+    width: 100%;
+    height: 100%;
 
     border-radius: 50%;
+    border: 1px solid #fff;
+    background-color: #fff;
+
+    &--more {
+      display: flex;
+      direction: ltr;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      border: none;
+    }
+
+    &__box {
+      position: relative;
+      width: $image-size;
+      height: $image-size;
+      grid-area: image;
+    }
+
+    &--1-0 {
+      position: static;
+      border: none;
+    }
+
+    $pos: (
+      (),
+      (
+        (
+          top: 0,
+          left: 0
+        ),
+        (
+          bottom: 0,
+          right: 0
+        )
+      ),
+      (
+        (
+          top: 0,
+          left: 0
+        ),
+        (
+          top: 0,
+          right: 0
+        ),
+        (
+          bottom: 0,
+          left: 25%
+        )
+      ),
+      (
+        (
+          top: 0,
+          left: 0
+        ),
+        (
+          top: 0,
+          right: 0
+        ),
+        (
+          bottom: 0,
+          left: 0
+        ),
+        (
+          bottom: 0,
+          right: 0
+        )
+      )
+    );
+
+    @for $i from 2 through list.length($pos) {
+      &%chat__room__image--#{$i} {
+        width: 80% - 5 * $i;
+        height: 80% - 5 * $i;
+      }
+
+      &--#{$i} {
+        @for $j from 0 to list.length(list.nth($pos, $i)) {
+          &-#{$j} {
+            @extend %chat__room__image--#{$i};
+
+            top: map.get(list.nth(list.nth($pos, $i), $j + 1), top);
+            right: map.get(list.nth(list.nth($pos, $i), $j + 1), right);
+            bottom: map.get(list.nth(list.nth($pos, $i), $j + 1), bottom);
+            left: map.get(list.nth(list.nth($pos, $i), $j + 1), left);
+            z-index: $j;
+          }
+        }
+      }
+    }
+  }
+
+  &__status {
+    position: absolute;
+    width: 1.6rem;
+    height: 1.6rem;
+    bottom: $image-size / 2 * (1- 1 / math.sqrt(2));
+    left: $image-size / 2 * (1- 1 / math.sqrt(2));
+    transform: translate(-50%, 50%);
+
+    border-radius: 50%;
+    border: 2px solid #fff;
+    background-color: $color-green;
   }
 
   &__title {
