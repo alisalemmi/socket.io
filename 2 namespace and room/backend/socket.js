@@ -34,7 +34,9 @@ const getRooms = async socket => {
 
   const friends = [
     ...new Set(
-      ...rooms.map(room => room.members.map(member => member._id.toString()))
+      rooms
+        .map(room => room.members.map(member => member._id.toString()))
+        .flat()
     )
   ];
 
@@ -64,13 +66,15 @@ const updateUserStatus = (socket, status) => {
     redis.sadd('onlineUsers', socket.userId.toString());
 
     socket.rooms.forEach(room =>
-      socket.to(room).emit('userConnect', socket.userId)
+      socket.to(room).emit('userConnect', { userId: socket.userId })
     );
   } else {
     redis.srem('onlineUsers', socket.userId.toString());
 
     socket.rooms.forEach(room =>
-      socket.to(room).emit('userDisconnect', socket.userId)
+      socket
+        .to(room)
+        .emit('userDisconnect', { userId: socket.userId, time: new Date() })
     );
   }
 };

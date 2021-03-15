@@ -132,6 +132,14 @@ export default {
         }
       }
     },
+    updateUserStatus: (state, { userId, isConnect, time } = {}) => {
+      for (const room in state.rooms) {
+        if (state.rooms[room]?.members?.[userId])
+          state.rooms[room].members[userId].lastSeen = isConnect
+            ? 'online'
+            : time || new Date();
+      }
+    },
     addMessage: (state, message) => {
       const room = state.rooms[message.room];
 
@@ -210,11 +218,11 @@ export default {
     onTyping: ({ commit }, info) => {
       commit('addTyping', info);
     },
-    onUserConnect: (context, userId) => {
-      console.log(`${userId} connect`);
+    onUserConnect: ({ commit }, { userId }) => {
+      commit('updateUserStatus', { userId, isConnect: true });
     },
-    onUserDisconnect: (context, userId) => {
-      console.log(`${userId} disconnect`);
+    onUserDisconnect: ({ commit }, { userId, time }) => {
+      commit('updateUserStatus', { userId, isConnect: false, time });
     },
     getHistory: ({ state, getters, commit, dispatch }) => {
       return new Promise(res =>
