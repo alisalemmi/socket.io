@@ -9,7 +9,9 @@ exports.createRoom = async (req, res, next) => {
   if (!Array.isArray(req.body.members)) req.body.members = [req.body.members];
 
   const room = await Room.create({
-    members: [req.user.id, ...req.body.members]
+    members: [req.user.id, ...req.body.members].map(member => ({
+      id: member.id
+    }))
   });
 
   res.status(200).json({ status: 'success', room });
@@ -63,7 +65,6 @@ exports.getRooms = async userId => {
             sender: true,
             text: true,
             time: true,
-            seen: true,
             edited: true,
             quoteRef: true
           }

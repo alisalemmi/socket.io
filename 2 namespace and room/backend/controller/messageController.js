@@ -33,7 +33,6 @@ exports.getHistory = async (roomId, offset) => {
       sender: true,
       text: true,
       time: true,
-      seen: true,
       edited: true,
       quoteRef: true
     })

@@ -3,10 +3,16 @@ const mongoose = require('mongoose');
 const roomSchema = mongoose.Schema({
   members: [
     {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'user',
-      required: true,
-      trim: true
+      id: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'user',
+        required: true,
+        trim: true
+      },
+      lastSeen: {
+        type: Date,
+        default: Date.now
+      }
     }
   ]
 });

@@ -25,10 +25,6 @@ const messageSchema = mongoose.Schema({
     default: Date.now,
     index: true
   },
-  seen: {
-    type: Boolean,
-    default: false
-  },
   edited: {
     type: Boolean,
     default: false
