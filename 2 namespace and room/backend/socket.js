@@ -21,7 +21,7 @@ const findUser = async socket => {
   if (!user) throw new Error();
   // return next(new Error('not auth'));
 
-  socket.emit('me', user);
+  socket.emit('me', user.id);
   socket.userId = user._id;
 };
 

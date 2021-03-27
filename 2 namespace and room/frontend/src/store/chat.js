@@ -4,11 +4,7 @@ import socket from '@/socket';
 export default {
   namespaced: true,
   state: {
-    me: {
-      id: '',
-      name: '',
-      image: ''
-    },
+    me: '',
     members: {},
     rooms: {},
     currentRoom: '',
@@ -98,7 +94,7 @@ export default {
             quote,
             senderName: sender.name,
             senderImage: sender.image,
-            isSend: state.me.id === message.sender,
+            isSend: state.me === message.sender,
             timeline,
             continues: !timeline && arr[i - 1][1].sender === message.sender,
             rounded: isNextTimeline || arr[i + 1][1].sender !== message.sender
@@ -111,8 +107,8 @@ export default {
         .filter(name => name)
   },
   mutations: {
-    setMyInfo: (state, info) => {
-      ({ id: state.me.id, name: state.me.name, image: state.me.image } = info);
+    setMe: (state, me) => {
+      state.me = me;
     },
     setRooms: (state, rooms) => {
       for (const room of rooms) {
@@ -209,7 +205,7 @@ export default {
   },
   actions: {
     onMe: ({ commit }, me) => {
-      commit('setMyInfo', me);
+      commit('setMe', me);
     },
     onRooms: ({ getters, commit, dispatch }, rooms) => {
       commit('setRooms', rooms);
