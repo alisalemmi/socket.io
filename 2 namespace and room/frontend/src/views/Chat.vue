@@ -185,7 +185,7 @@ export default {
   },
   computed: {
     ...mapState('chat', ['currentRoom']),
-    ...mapGetters('chat', ['rooms', 'messages', 'members', 'typingUsers']),
+    ...mapGetters('chat', ['rooms', 'messages', 'typingUsers']),
     formatTime: () => getDate
   },
   watch: {

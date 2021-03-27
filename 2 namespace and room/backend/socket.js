@@ -26,32 +26,27 @@ const findUser = async socket => {
 };
 
 /**
- * find user's rooms and join it to them
+ * find user's rooms and join it to them and also get members info
  * @param {import('socket.io').Socket} socket
  */
-const getRooms = async socket => {
-  const rooms = await roomController.getRooms(socket.userId);
+const getRoomsAndMembers = async socket => {
+  const { rooms, members } = await roomController.getRooms(socket.userId);
 
-  const friends = [
-    ...new Set(
-      rooms
-        .map(room => room.members.map(member => member._id.toString()))
-        .flat()
-    )
-  ];
-
-  const res = await redis.smismember('onlineUsers', friends);
-  const onlineFriends = Object.fromEntries(
-    friends.map((_, i) => [friends[i], res[i]])
-  );
-
-  rooms.forEach(room =>
-    room.members.forEach(member => {
-      if (onlineFriends[member._id]) member.lastSeen = 'online';
-    })
-  );
-
+  // get rooms
   socket.emit('rooms', rooms);
+
+  // get members
+  const friends = members.map(member => member.id.toString());
+  const membersStatus = await redis.smismember('onlineUsers', friends);
+  const onlineFriends = Object.fromEntries(
+    friends.map((_, i) => [friends[i], membersStatus[i] === 1])
+  );
+
+  members.forEach(member => {
+    if (onlineFriends[member.id]) member.lastSeen = 'online';
+  });
+
+  socket.emit('members', members);
 
   // join rooms
   rooms.forEach(room => socket.join(`${room.id}`));
@@ -156,7 +151,7 @@ const onDisconnect = socket => () => {
  */
 const onConnect = async socket => {
   await findUser(socket);
-  await getRooms(socket);
+  await getRoomsAndMembers(socket);
   updateUserStatus(socket, true);
 
   socket.on('getHistory', getHistory);

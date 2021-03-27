@@ -9,7 +9,7 @@ const roomSchema = mongoose.Schema({
         required: true,
         trim: true
       },
-      lastSeen: {
+      lastSeenMessage: {
         type: Date,
         default: Date.now
       }

@@ -17,65 +17,120 @@ exports.createRoom = async (req, res, next) => {
   res.status(200).json({ status: 'success', room });
 };
 
+/**
+ * get rooms and members of all of them of a user
+ * @param {string} userId
+ * @returns {{rooms: [], members: []}}
+ */
 exports.getRooms = async userId => {
   const rooms = await Room.aggregate()
-    .match({
-      members: userId
-    })
-    .project({
-      _id: false,
-      id: '$_id',
-      members: {
-        $filter: {
-          input: '$members',
-          as: 'member',
-          cond: {
-            $ne: ['$$member', userId]
-          }
-        }
-      }
-    })
-    .lookup({
-      from: 'users',
-      localField: 'members',
-      foreignField: '_id',
-      as: 'members'
-    })
-    .lookup({
-      from: 'messages',
-      let: { id: '$id' },
-      pipeline: [
+    .match({ 'members.id': userId })
+    .facet({
+      members: [
         {
-          $match: {
-            $expr: {
-              $eq: ['$$id', '$room']
+          $group: {
+            _id: '0',
+            members: {
+              $push: '$members.id'
             }
           }
         },
         {
-          $sort: { time: -1 }
-        },
-        {
-          $limit: 1
-        },
-        {
           $project: {
             _id: false,
-            id: '$_id',
-            sender: true,
-            text: true,
-            time: true,
-            edited: true,
-            quoteRef: true
+            members: {
+              $setUnion: {
+                $reduce: {
+                  input: '$members',
+                  initialValue: [],
+                  in: { $concatArrays: ['$$value', '$$this'] }
+                }
+              }
+            }
+          }
+        },
+        {
+          $lookup: {
+            from: 'users',
+            localField: 'members',
+            foreignField: '_id',
+            as: 'members'
+          }
+        },
+        {
+          $unwind: {
+            path: '$members',
+            preserveNullAndEmptyArrays: true
           }
         }
       ],
-      as: 'lastMessage'
+      rooms: [
+        {
+          $lookup: {
+            from: 'messages',
+            let: { id: '$_id' },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+                    $eq: ['$$id', '$room']
+                  }
+                }
+              },
+              {
+                $sort: { time: -1 }
+              },
+              {
+                $limit: 1
+              },
+              {
+                $project: {
+                  _id: false,
+                  id: '$_id',
+                  sender: true,
+                  text: true,
+                  time: true,
+                  edited: true,
+                  quoteRef: true
+                }
+              }
+            ],
+            as: 'lastMessage'
+          }
+        },
+        {
+          $unwind: {
+            path: '$lastMessage',
+            preserveNullAndEmptyArrays: true
+          }
+        }
+      ]
     })
-    .unwind({
-      path: '$lastMessage',
-      preserveNullAndEmptyArrays: true
+    .project({
+      members: {
+        $map: {
+          input: '$members.members',
+          as: 'members',
+          in: {
+            id: '$$members._id',
+            name: '$$members.name',
+            image: '$$members.image',
+            lastSeen: '$$members.lastSeen'
+          }
+        }
+      },
+      rooms: {
+        $map: {
+          input: '$rooms',
+          as: 'rooms',
+          in: {
+            id: '$$rooms._id',
+            members: '$$rooms.members',
+            lastMessage: '$$rooms.lastMessage'
+          }
+        }
+      }
     });
 
-  return rooms;
+  return rooms[0];
 };

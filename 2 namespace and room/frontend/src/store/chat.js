@@ -9,6 +9,7 @@ export default {
       name: '',
       image: ''
     },
+    members: {},
     rooms: {},
     currentRoom: '',
     typing: {
@@ -42,13 +43,25 @@ export default {
           id,
           lastMessage: getters.lastMessages[id],
           members: room.members
+            .filter(({ id }) => id !== state.me)
+            .map(({ id, lastSeenMessage }) => {
+              const member = state.members[id] || {};
+
+              return {
+                id,
+                name: member.name,
+                image: member.image,
+                lastSeen: member.lastSeen,
+                lastSeenMessage
+              };
+            })
         }));
     },
     messages: state => {
       if (!state.rooms[state.currentRoom]) return [];
 
       let isNextTimeline = true;
-      const { messages, members } = state.rooms[state.currentRoom];
+      const { messages } = state.rooms[state.currentRoom];
 
       if (!messages) return [];
 
@@ -73,17 +86,18 @@ export default {
             ? {
                 id: quoteRef,
                 text: quotedMessage.text,
-                senderName:
-                  members?.[quotedMessage.sender]?.name || state.me.name
+                senderName: state.members[quotedMessage.sender]?.name || ''
               }
             : undefined;
+
+          const sender = state.members[message.sender];
 
           return {
             id,
             ...msg,
             quote,
-            senderName: members?.[message.sender]?.name,
-            senderImage: members?.[message.sender]?.image,
+            senderName: sender.name,
+            senderImage: sender.image,
             isSend: state.me.id === message.sender,
             timeline,
             continues: !timeline && arr[i - 1][1].sender === message.sender,
@@ -91,7 +105,6 @@ export default {
           };
         });
     },
-    members: state => state.rooms[state.currentRoom]?.members,
     typingUsers: state =>
       state.typing.users
         .map(userId => state.rooms[state.currentRoom]?.members?.[userId]?.name)
@@ -104,7 +117,7 @@ export default {
     setRooms: (state, rooms) => {
       for (const room of rooms) {
         Vue.set(state.rooms, room.id, {
-          members: {},
+          members: room.members,
           messages: {},
           lostMessages: new Set()
         });
@@ -122,15 +135,16 @@ export default {
           if (room.lastMessage.quoteRef)
             state.rooms[room.id].lostMessages.add(room.lastMessage.quoteRef);
         }
-        // set members
-        for (const member of room.members) {
-          Vue.set(state.rooms[room.id].members, member._id, {
-            name: member.name,
-            image: member.image,
-            lastSeen: member.lastSeen
-          });
-        }
       }
+    },
+    setMembers: (state, members) => {
+      members.forEach(member =>
+        Vue.set(state.members, member.id, {
+          name: member.name,
+          image: member.image,
+          lastSeen: member.lastSeen
+        })
+      );
     },
     updateUserStatus: (state, { userId, isConnect, time } = {}) => {
       for (const room in state.rooms) {
@@ -200,6 +214,9 @@ export default {
     onRooms: ({ getters, commit, dispatch }, rooms) => {
       commit('setRooms', rooms);
       dispatch('changeRoom', getters.rooms[0]?.id);
+    },
+    onMembers: ({ commit }, members) => {
+      commit('setMembers', members);
     },
     onMessage: ({ state, commit, dispatch }, message) => {
       if (message.room in state.rooms) {
