@@ -1,11 +1,9 @@
 {
-  "name": "learn-socket.io",
+  "name": "chat-app",
   "version": "1.0.0",
-  "description": "آموزش socket.io",
+  "description": "پیامرسان با استفاده از socket.io",
   "scripts": {
-    "websocket": "nodemon '0 webSocket'/backend/server",
-    "socketio": "nodemon '1 start socket.io'/backend/server.js",
-    "chat": "nodemon '2 namespace and room'/backend/server.js"
+    "start": "nodemon backend/server.js"
   },
   "husky": {
     "hooks": {
@@ -18,8 +16,9 @@
   },
   "keywords": [
     "socket.io",
-    "webSocket",
-    "webRTC"
+    "node.js",
+    "mongodb",
+    "redis"
   ],
   "author": "علی سالمی",
   "license": "ISC",
@@ -46,7 +45,6 @@
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.11.13",
     "redis": "^3.0.2",
-    "socket.io": "^3.1.1",
-    "ws": "^7.4.2"
+    "socket.io": "^3.1.1"
   }
 }
