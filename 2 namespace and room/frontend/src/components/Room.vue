@@ -24,7 +24,7 @@ li.chat__room__box(
       v-show='firstMembers[0].lastSeen === "online"'
     )
 
-  h4.chat__room__title {{ name }}
+  h4.chat__room__title(:title='name') {{ name }}
   span.chat__room__date {{ getLastTime }}
   p.chat__room__last {{ lastMessage }}
 </template>
