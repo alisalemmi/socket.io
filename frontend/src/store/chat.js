@@ -86,7 +86,7 @@ export default {
               }
             : undefined;
 
-          const sender = state.members[message.sender];
+          const sender = state.members[message.sender] || {};
 
           return {
             id,
