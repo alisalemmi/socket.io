@@ -103,7 +103,7 @@ export default {
     },
     typingUsers: state =>
       state.typing.users
-        .map(userId => state.rooms[state.currentRoom]?.members?.[userId]?.name)
+        .map(userId => state.members[userId]?.name)
         .filter(name => name)
   },
   mutations: {
