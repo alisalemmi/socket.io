@@ -86,7 +86,7 @@ export default {
     };
   },
   methods: {
-    ...mapActions('chat', [
+    ...mapActions([
       'sendMessage',
       'editMessage',
       'deleteMessage',
@@ -184,8 +184,8 @@ export default {
     }
   },
   computed: {
-    ...mapState('chat', ['currentRoom']),
-    ...mapGetters('chat', ['rooms', 'messages', 'typingUsers']),
+    ...mapState(['currentRoom']),
+    ...mapGetters(['rooms', 'messages', 'typingUsers']),
     formatTime: () => getDate
   },
   watch: {

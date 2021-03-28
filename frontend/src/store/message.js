@@ -2,18 +2,7 @@ import Vue from 'vue';
 import socket from '@/socket';
 
 export default {
-  namespaced: true,
-  state: {
-    me: '',
-    members: {},
-    rooms: {},
-    currentRoom: '',
-    typing: {
-      users: [],
-      timeout: {},
-      lastSend: 0
-    }
-  },
+  state: {},
   getters: {
     lastMessages: state => {
       const lastMessages = {};
@@ -27,31 +16,6 @@ export default {
       }
 
       return lastMessages;
-    },
-    rooms: (state, getters) => {
-      return Object.entries(state.rooms)
-        .sort(
-          ([a], [b]) =>
-            new Date(getters.lastMessages[b].time || 0) -
-            new Date(getters.lastMessages[a].time || 0)
-        )
-        .map(([id, room]) => ({
-          id,
-          lastMessage: getters.lastMessages[id],
-          members: room.members
-            .filter(({ id }) => id !== state.me)
-            .map(({ id, lastSeenMessage }) => {
-              const member = state.members[id] || {};
-
-              return {
-                id,
-                name: member.name,
-                image: member.image,
-                lastSeen: member.lastSeen,
-                lastSeenMessage
-              };
-            })
-        }));
     },
     messages: state => {
       if (!state.rooms[state.currentRoom]) return [];
@@ -100,54 +64,9 @@ export default {
             rounded: isNextTimeline || arr[i + 1][1].sender !== message.sender
           };
         });
-    },
-    typingUsers: state =>
-      state.typing.users
-        .map(userId => state.members[userId]?.name)
-        .filter(name => name)
+    }
   },
   mutations: {
-    setMe: (state, me) => {
-      state.me = me;
-    },
-    setRooms: (state, rooms) => {
-      for (const room of rooms) {
-        Vue.set(state.rooms, room.id, {
-          members: room.members,
-          messages: {},
-          lostMessages: new Set()
-        });
-
-        // set all info of last message except quoteRef
-        if (room.lastMessage) {
-          Vue.set(state.rooms[room.id].messages, room.lastMessage.id, {
-            text: room.lastMessage.text,
-            time: room.lastMessage.time,
-            sender: room.lastMessage.sender,
-            edited: room.lastMessage.edited,
-            quoteRef: room.lastMessage.quoteRef
-          });
-
-          if (room.lastMessage.quoteRef)
-            state.rooms[room.id].lostMessages.add(room.lastMessage.quoteRef);
-        }
-      }
-    },
-    setMembers: (state, members) => {
-      members.forEach(member =>
-        Vue.set(state.members, member.id, {
-          name: member.name,
-          image: member.image,
-          lastSeen: member.lastSeen
-        })
-      );
-    },
-    updateUserStatus: (state, { userId, isConnect, time } = {}) => {
-      if (state.members[userId])
-        state.members[userId].lastSeen = isConnect
-          ? 'online'
-          : time || new Date();
-    },
     addMessage: (state, message) => {
       const room = state.rooms[message.room];
 
@@ -178,40 +97,9 @@ export default {
     },
     deleteMessage: (state, message) => {
       Vue.delete(state.rooms[message.room].messages, message.id);
-    },
-    addTyping: (state, info) => {
-      if (info.room !== state.currentRoom) return;
-
-      if (state.typing.users.includes(info.userId))
-        clearTimeout(state.typing.timeout[info.userId]);
-      else state.typing.users.push(info.userId);
-
-      state.typing.timeout[info.userId] = setTimeout(() => {
-        state.typing.users = state.typing.users.filter(
-          userId => userId !== info.userId
-        );
-        delete state.typing.timeout[info.userId];
-      }, info.expires);
-    },
-    removeTyping: (state, userId) => {
-      for (const user of userId ? [userId] : state.typing.users) {
-        clearTimeout(state.typing.timeout[user]);
-        delete state.typing.timeout[user];
-        state.typing.users = state.typing.users.filter(id => id !== user);
-      }
     }
   },
   actions: {
-    onMe: ({ commit }, me) => {
-      commit('setMe', me);
-    },
-    onRooms: ({ getters, commit, dispatch }, rooms) => {
-      commit('setRooms', rooms);
-      dispatch('changeRoom', getters.rooms[0]?.id);
-    },
-    onMembers: ({ commit }, members) => {
-      commit('setMembers', members);
-    },
     onMessage: ({ state, commit, dispatch }, message) => {
       if (message.room in state.rooms) {
         commit('addMessage', message);
@@ -225,15 +113,6 @@ export default {
     },
     onDelete: ({ commit }, message) => {
       commit('deleteMessage', message);
-    },
-    onTyping: ({ commit }, info) => {
-      commit('addTyping', info);
-    },
-    onUserConnect: ({ commit }, { userId }) => {
-      commit('updateUserStatus', { userId, isConnect: true });
-    },
-    onUserDisconnect: ({ commit }, { userId, time }) => {
-      commit('updateUserStatus', { userId, isConnect: false, time });
     },
     getHistory: ({ state, getters, commit, dispatch }) => {
       return new Promise(res =>
@@ -274,21 +153,8 @@ export default {
     deleteMessage: (context, id) => {
       socket.emit('sendDelete', id);
     },
-    sendTyping: ({ state }) => {
-      const now = Date.now();
-
-      if (now - state.typing.lastSend > 2000) {
-        state.typing.lastSend = now;
-        socket.emit('sendTyping', state.currentRoom);
-      }
-    },
     handleLostMessages: ({ state, dispatch }, room) => {
       if (state.rooms[room]?.lostMessages?.size) dispatch('getHistory');
-    },
-    changeRoom: ({ state, commit }, newRoomId) => {
-      state.currentRoom = newRoomId;
-      commit('removeTyping');
-      // TODO save message in draft
     }
   }
 };
