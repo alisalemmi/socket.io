@@ -143,12 +143,10 @@ export default {
       );
     },
     updateUserStatus: (state, { userId, isConnect, time } = {}) => {
-      for (const room in state.rooms) {
-        if (state.rooms[room]?.members?.[userId])
-          state.rooms[room].members[userId].lastSeen = isConnect
-            ? 'online'
-            : time || new Date();
-      }
+      if (state.members[userId])
+        state.members[userId].lastSeen = isConnect
+          ? 'online'
+          : time || new Date();
     },
     addMessage: (state, message) => {
       const room = state.rooms[message.room];
