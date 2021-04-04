@@ -23,7 +23,7 @@
       span(slot='error')
 
     template(v-for='message in messages')
-      .chat__timeline(v-if='message.timeline') {{ formatTime(message.time) }}
+      .chat__timeline(v-if='message.timeline', :key='`${message.id}-time`') {{ message.time | formatTime }}
 
       message(
         :key='message.id',
@@ -185,8 +185,10 @@ export default {
   },
   computed: {
     ...mapState(['currentRoom']),
-    ...mapGetters(['rooms', 'messages', 'typingUsers']),
-    formatTime: () => getDate
+    ...mapGetters(['rooms', 'messages', 'typingUsers'])
+  },
+  filters: {
+    formatTime: getDate
   },
   watch: {
     messages: function () {
