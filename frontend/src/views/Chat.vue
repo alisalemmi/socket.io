@@ -277,7 +277,7 @@ export default {
     justify-content: center;
     align-items: center;
 
-    padding-top: 1.5rem;
+    padding-top: 2rem;
 
     color: $color-primary;
     font-size: 1.3rem;
@@ -287,9 +287,16 @@ export default {
       content: '';
       flex: 1;
       height: 1px;
-      margin: 0 1rem;
 
       background-color: currentColor;
+    }
+
+    &::before {
+      margin-left: 1rem;
+    }
+
+    &::after {
+      margin-right: 1rem;
     }
   }
 
