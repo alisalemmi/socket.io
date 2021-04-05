@@ -16,9 +16,9 @@ export default {
         .map(([id, room]) => ({
           id,
           lastMessage: getters.lastMessages[id],
-          members: room.members
-            .filter(({ id }) => id !== state.me)
-            .map(({ id, lastSeenMessage }) => {
+          members: Object.entries(room.members)
+            .filter(([id]) => id !== state.me)
+            .map(([id, { lastSeenMessage }]) => {
               const member = state.members[id] || {};
 
               return {
@@ -37,10 +37,15 @@ export default {
     setRooms: (state, rooms) => {
       for (const room of rooms) {
         Vue.set(state.rooms, room.id, {
-          members: room.members,
+          members: {},
           messages: {},
           lostMessages: new Set()
         });
+
+        // set members
+        room.members.forEach(({ id, ...member }) =>
+          Vue.set(state.rooms[room.id].members, id, member)
+        );
 
         // set last message
         if (room.lastMessage) {
@@ -70,11 +75,7 @@ export default {
       state.currentRoom = newRoomId;
 
       // load lastSeenMessage of new room
-      commit(
-        'resetLastSeenMessage',
-        getters.currentRoom.members.find(member => member.id === state.me)
-          .lastSeenMessage
-      );
+      commit('resetLastSeenMessage', getters.meInCurrentRoom.lastSeenMessage);
 
       commit('removeTyping');
       // TODO save message in draft

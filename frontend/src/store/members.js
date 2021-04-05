@@ -12,6 +12,8 @@ export default {
     }
   },
   getters: {
+    meInCurrentRoom: (state, getters) =>
+      getters.currentRoom?.members?.[state.me],
     typingUsers: state =>
       state.typing.users
         .map(userId => state.members[userId]?.name)

@@ -20,7 +20,7 @@ export default {
 
       return lastMessages;
     },
-    messages: (state, { currentRoom }) => {
+    messages: (state, { currentRoom, meInCurrentRoom }) => {
       if (!currentRoom?.messages) return [];
 
       let isNextTimeline = true;
@@ -29,8 +29,7 @@ export default {
       const sortedMessages = Object.entries({
         ...messages,
         unread: {
-          time: currentRoom.members.find(member => member.id === state.me)
-            .lastSeenMessage
+          time: meInCurrentRoom.lastSeenMessage
         }
       })
         .sort(([, a], [, b]) => new Date(a?.time || 0) - new Date(b?.time || 0))
