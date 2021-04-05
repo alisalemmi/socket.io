@@ -30,7 +30,8 @@ export default {
               };
             })
         }));
-    }
+    },
+    currentRoom: state => state.rooms[state.currentRoom]
   },
   mutations: {
     setRooms: (state, rooms) => {
@@ -62,8 +63,19 @@ export default {
       commit('setRooms', rooms);
       dispatch('changeRoom', getters.rooms[0]?.id);
     },
-    changeRoom: ({ state, commit }, newRoomId) => {
+    changeRoom: ({ state, getters, commit, dispatch }, newRoomId) => {
+      // store lastSeenMessage of old room
+      if (state.currentRoom) dispatch('syncLastSeenMessage');
+
       state.currentRoom = newRoomId;
+
+      // load lastSeenMessage of new room
+      commit(
+        'resetLastSeenMessage',
+        getters.currentRoom.members.find(member => member.id === state.me)
+          .lastSeenMessage
+      );
+
       commit('removeTyping');
       // TODO save message in draft
     }

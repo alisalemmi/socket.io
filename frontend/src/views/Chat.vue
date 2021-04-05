@@ -11,7 +11,7 @@
       @click='changeRoom(room.id)'
     )
 
-  .chat__message
+  .chat__message(ref='chatMessage')
     infinite-loading(
       direction='top',
       :identifier='currentRoom',
@@ -25,9 +25,12 @@
     template(v-for='message in messages')
       .chat__timeline(v-if='message.timeline', :key='`${message.id}-time`') {{ message.time | formatTime }}
 
+      .chat__unread(:key='message.id', v-if='message.id === "unread"') پیام های خوانده نشده
+
       message(
         :key='message.id',
         :id='message.id',
+        v-else,
         :isSend='message.isSend',
         :senderName='message.senderName',
         :senderImage='`/image/${message.senderImage}`',
@@ -69,6 +72,8 @@ import Room from '@/components/Room';
 import Send from '@/components/Send';
 import Message from '@/components/Message';
 
+let observer;
+
 export default {
   name: 'Chat',
   components: { Room, Send, Message, infiniteLoading, ContextMenu },
@@ -92,7 +97,8 @@ export default {
       'deleteMessage',
       'sendTyping',
       'getHistory',
-      'changeRoom'
+      'changeRoom',
+      'readMessage'
     ]),
     loadMessage: async function (state) {
       if (!this.currentRoom) return;
@@ -191,14 +197,38 @@ export default {
     formatTime: getDate
   },
   watch: {
-    messages: function () {
-      // this.scrollToEnd();
+    messages: function (to, from) {
+      const unreadIndex = to.findIndex(message => message.id === 'unread');
+      if (unreadIndex === -1) return;
+
+      const old = new Set(from.map(f => f.id));
+
+      to.slice(unreadIndex + 1).forEach(t => {
+        if (!old.has(t.id)) {
+          this.$nextTick(() => observer.observe(document.getElementById(t.id)));
+        }
+      });
     }
   },
   mounted: function () {
     window.addEventListener('keyup', e => {
       if (/^Esc(ape)?$/i.test(e.key)) this.$root.$emit('escape');
     });
+
+    observer = new IntersectionObserver(
+      e => {
+        e.forEach(message => {
+          if (message.isIntersecting) {
+            observer.unobserve(message.target);
+            this.readMessage(message.target.id);
+          }
+        });
+      },
+      {
+        root: this.$refs.chatMessage,
+        threshold: 1.0
+      }
+    );
   }
 };
 </script>
@@ -240,6 +270,27 @@ export default {
   &__message {
     padding: 0 2rem;
     grid-area: chats;
+  }
+
+  &__unread {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    padding-top: 1.5rem;
+
+    color: $color-primary;
+    font-size: 1.3rem;
+
+    &::before,
+    &::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      margin: 0 1rem;
+
+      background-color: currentColor;
+    }
   }
 
   &__timeline {

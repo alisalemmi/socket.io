@@ -2,7 +2,10 @@ import Vue from 'vue';
 import socket from '@/socket';
 
 export default {
-  state: {},
+  state: {
+    lastSeenMessage: new Date(0),
+    seenMessageNumber: 0
+  },
   getters: {
     lastMessages: state => {
       const lastMessages = {};
@@ -17,15 +20,19 @@ export default {
 
       return lastMessages;
     },
-    messages: state => {
-      if (!state.rooms[state.currentRoom]) return [];
+    messages: (state, { currentRoom }) => {
+      if (!currentRoom?.messages) return [];
 
       let isNextTimeline = true;
-      const { messages } = state.rooms[state.currentRoom];
+      const { messages } = currentRoom;
 
-      if (!messages) return [];
-
-      return Object.entries(messages)
+      const sortedMessages = Object.entries({
+        ...messages,
+        unread: {
+          time: currentRoom.members.find(member => member.id === state.me)
+            .lastSeenMessage
+        }
+      })
         .sort(([, a], [, b]) => new Date(a?.time || 0) - new Date(b?.time || 0))
         .map(([id, message], i, arr) => {
           const timeline = isNextTimeline;
@@ -52,18 +59,29 @@ export default {
 
           const sender = state.members[message.sender] || {};
 
-          return {
-            id,
-            ...msg,
-            quote,
-            senderName: sender.name,
-            senderImage: sender.image,
-            isSend: state.me === message.sender,
-            timeline,
-            continues: !timeline && arr[i - 1][1].sender === message.sender,
-            rounded: isNextTimeline || arr[i + 1][1].sender !== message.sender
-          };
+          return id === 'unread'
+            ? {
+                id: 'unread',
+                n: arr.length - i - 1
+              }
+            : {
+                id,
+                ...msg,
+                quote,
+                senderName: sender.name,
+                senderImage: sender.image,
+                isSend: state.me === message.sender,
+                timeline,
+                continues: !timeline && arr[i - 1][1].sender === message.sender,
+                rounded:
+                  isNextTimeline || arr[i + 1][1].sender !== message.sender
+              };
         });
+
+      if (sortedMessages[sortedMessages.length - 1].id === 'unread')
+        sortedMessages.pop();
+
+      return sortedMessages;
     }
   },
   mutations: {
@@ -97,6 +115,18 @@ export default {
     },
     deleteMessage: (state, message) => {
       Vue.delete(state.rooms[message.room].messages, message.id);
+    },
+    setLastSeenMessage: (state, time) => {
+      const t = new Date(time);
+
+      if (state.lastSeenMessage < t) {
+        state.lastSeenMessage = t;
+        state.seenMessageNumber++;
+      }
+    },
+    resetLastSeenMessage: (state, time) => {
+      state.lastSeenMessage = new Date(time);
+      state.seenMessageNumber = 0;
     }
   },
   actions: {
@@ -153,8 +183,24 @@ export default {
     deleteMessage: (context, id) => {
       socket.emit('sendDelete', id);
     },
+    syncLastSeenMessage: ({ state }) => {
+      if (state.seenMessageNumber <= 0) return;
+
+      socket.emit('syncLastSeenMessage', {
+        room: state.currentRoom,
+        lastSeenMessage: state.lastSeenMessage
+      });
+
+      state.seenMessageNumber = 0;
+    },
     handleLostMessages: ({ state, dispatch }, room) => {
       if (state.rooms[room]?.lostMessages?.size) dispatch('getHistory');
+    },
+    readMessage: ({ state, getters, commit, dispatch }, id) => {
+      const message = getters.currentRoom.messages[id];
+
+      if (message.time) commit('setLastSeenMessage', message.time);
+      if (state.seenMessageNumber > 5) dispatch('syncLastSeenMessage');
     }
   }
 };
