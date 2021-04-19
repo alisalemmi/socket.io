@@ -28,7 +28,7 @@ export default {
         Vue.set(state.members, member.id, {
           name: member.name,
           image: member.image,
-          lastSeen: member.lastSeen
+          lastSeen: new Date(member.lastSeen).getTime()
         })
       );
     },
@@ -36,7 +36,7 @@ export default {
       if (state.members[userId])
         state.members[userId].lastSeen = isConnect
           ? 'online'
-          : time || new Date();
+          : new Date(time).getTime();
     },
     addTyping: (state, info) => {
       if (info.room !== state.currentRoom) return;

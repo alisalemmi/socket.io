@@ -8,11 +8,7 @@ export default {
   getters: {
     rooms: (state, getters) => {
       return Object.entries(state.rooms)
-        .sort(
-          ([a], [b]) =>
-            new Date(getters.lastMessages[b].time || 0) -
-            new Date(getters.lastMessages[a].time || 0)
-        )
+        .sort(([a], [b]) => lastMessages[b].time - lastMessages[a].time)
         .map(([id, room]) => ({
           id,
           lastMessage: getters.lastMessages[id],
@@ -44,14 +40,16 @@ export default {
 
         // set members
         room.members.forEach(({ id, ...member }) =>
-          Vue.set(state.rooms[room.id].members, id, member)
+          Vue.set(state.rooms[room.id].members, id, {
+            lastSeenMessage: new Date(member.lastSeenMessage).getTime()
+          })
         );
 
         // set last message
         if (room.lastMessage) {
           Vue.set(state.rooms[room.id].messages, room.lastMessage.id, {
             text: room.lastMessage.text,
-            time: room.lastMessage.time,
+            time: new Date(room.lastMessage.time).getTime(),
             sender: room.lastMessage.sender,
             edited: room.lastMessage.edited,
             quoteRef: room.lastMessage.quoteRef

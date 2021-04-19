@@ -20,7 +20,7 @@ export const getDate = (time, getHour = false) => {
   const t = new Date(time);
   const now = new Date();
 
-  if (isNaN(t)) return '';
+  if (!time || isNaN(t)) return '';
 
   const [nDay, nMonth, nYear] = now
     .toLocaleDateString('fa', {

@@ -12,9 +12,8 @@ export default {
 
       for (const id in state.rooms) {
         lastMessages[id] = Object.values(state.rooms[id].messages).reduce(
-          (acc, cur) =>
-            new Date(acc.time || 0) < new Date(cur.time || 0) ? cur : acc,
-          {}
+          (acc, cur) => (acc.time < cur.time ? cur : acc),
+          { time: 0 }
         );
       }
 
@@ -32,7 +31,7 @@ export default {
           time: meInCurrentRoom.lastSeenMessage
         }
       })
-        .sort(([, a], [, b]) => new Date(a?.time || 0) - new Date(b?.time || 0))
+        .sort(([, a], [, b]) => a?.time - b?.time)
         .map(([id, message], i, arr) => {
           const timeline = isNextTimeline;
 
@@ -91,7 +90,7 @@ export default {
 
       Vue.set(room.messages, message.id, {
         text: message.text,
-        time: message.time,
+        time: new Date(message.time).getTime(),
         sender: message.sender,
         edited: message.edited,
         quoteRef: message.quoteRef
