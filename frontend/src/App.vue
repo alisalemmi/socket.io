@@ -8,7 +8,12 @@
 import Prompt from '@/components/Prompt';
 
 export default {
-  components: { Prompt }
+  components: { Prompt },
+  mounted: function () {
+    window.addEventListener('keyup', e => {
+      if (/^Esc(ape)?$/i.test(e.key)) this.$root.$emit('escape');
+    });
+  }
 };
 </script>
 
