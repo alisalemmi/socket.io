@@ -156,10 +156,13 @@ export default {
 
       if (Object.keys(getters.currentRoom.messages).length === 1)
         date = getters.meInCurrentRoom.lastSeenMessage;
-      else
-        date =
-          getters.messages[direction ? 0 : getters.messages.length - 1]?.time ||
-          0;
+      else {
+        const lastMessage = direction
+          ? 0
+          : Math.max(getters.messages.length - 2, 0);
+
+        date = getters.messages[lastMessage]?.time || 0;
+      }
 
       return new Promise(res =>
         socket.emit(

@@ -102,7 +102,8 @@ export default {
       'deleteMessage',
       'sendTyping',
       'getHistory',
-      'readMessage'
+      'readMessage',
+      'changeRoom'
     ]),
     loadMessage: async function (direction) {
       if (!this.currentRoom) return;
@@ -113,14 +114,10 @@ export default {
       const messages = await this.getHistory(direction);
       this.busy[dir] = false;
 
-      if (!messages.length) this.complete[dir] = true;
+      if (messages.length === +!direction) this.complete[dir] = true;
     },
     initiated: function () {
       this.scrollTo('chat__unread') || this.scrollToEnd();
-    },
-    changeRoom: function (roomId) {
-      this.$store.dispatch('changeRoom', roomId);
-      observer.disconnect();
     },
     resetState: function (clearInput = false) {
       this.state = 'send';
@@ -239,7 +236,7 @@ export default {
       },
       {
         root: this.$refs.infiniteScroll.$el,
-        threshold: 1.0
+        threshold: 0.95
       }
     );
   }
