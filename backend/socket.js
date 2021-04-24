@@ -138,6 +138,10 @@ const deleteMessage = userId => async messageId => {
     });
 };
 
+const syncLastSeenMessage = userId => async ({ room, lastSeenMessage }) => {
+  console.log(userId, room, lastSeenMessage);
+};
+
 /**
  * @param {import('socket.io').Socket} socket
  */
@@ -159,6 +163,7 @@ const onConnect = async socket => {
   socket.on('sendMessage', sendMessage(socket.userId));
   socket.on('sendEdit', editMessage(socket.userId));
   socket.on('sendDelete', deleteMessage(socket.userId));
+  socket.on('syncLastSeenMessage', syncLastSeenMessage(socket.userId));
   socket.on('disconnecting', onDisconnect(socket));
 };
 

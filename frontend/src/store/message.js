@@ -3,7 +3,7 @@ import socket from '@/socket';
 
 export default {
   state: {
-    lastSeenMessage: new Date(0),
+    lastSeen: 0,
     seenMessageNumber: 0
   },
   getters: {
@@ -34,7 +34,7 @@ export default {
         })
       );
     },
-    messages: (state, { currentRoom, meInCurrentRoom }) => {
+    messages: (state, { currentRoom }) => {
       if (!currentRoom?.messages) return [];
 
       let isNextTimeline = true;
@@ -43,7 +43,7 @@ export default {
       const sortedMessages = Object.entries({
         ...messages,
         unread: {
-          time: meInCurrentRoom.lastSeenMessage
+          time: state.lastSeen
         }
       })
         .sort(([, a], [, b]) => a?.time - b?.time)
@@ -130,16 +130,10 @@ export default {
       Vue.delete(state.rooms[message.room].messages, message.id);
     },
     setLastSeenMessage: (state, time) => {
-      const t = new Date(time);
+      const me = state.rooms[state.currentRoom].members[state.me];
 
-      if (state.lastSeenMessage < t) {
-        state.lastSeenMessage = t;
-        state.seenMessageNumber++;
-      }
-    },
-    resetLastSeenMessage: (state, time) => {
-      state.lastSeenMessage = new Date(time);
-      state.seenMessageNumber = 0;
+      state.seenMessageNumber++;
+      if (me.lastSeenMessage < time) me.lastSeenMessage = time;
     }
   },
   actions: {
@@ -209,15 +203,14 @@ export default {
     deleteMessage: (context, id) => {
       socket.emit('sendDelete', id);
     },
-    syncLastSeenMessage: ({ state }) => {
+    syncLastSeenMessage: ({ state, getters }) => {
       if (state.seenMessageNumber <= 0) return;
+      state.seenMessageNumber = 0;
 
       socket.emit('syncLastSeenMessage', {
         room: state.currentRoom,
-        lastSeenMessage: state.lastSeenMessage
+        lastSeenMessage: getters.meInCurrentRoom.lastSeenMessage
       });
-
-      state.seenMessageNumber = 0;
     },
     handleLostMessages: ({ state, dispatch }, room) => {
       if (state.rooms[room]?.lostMessages?.size) dispatch('getHistory');

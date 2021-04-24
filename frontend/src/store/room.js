@@ -68,13 +68,10 @@ export default {
       dispatch('changeRoom', getters.rooms[0]?.id);
     },
     changeRoom: ({ state, getters, commit, dispatch }, newRoomId) => {
-      // store lastSeenMessage of old room
       if (state.currentRoom) dispatch('syncLastSeenMessage');
 
       state.currentRoom = newRoomId;
-
-      // load lastSeenMessage of new room
-      commit('resetLastSeenMessage', getters.meInCurrentRoom.lastSeenMessage);
+      state.lastSeen = getters.meInCurrentRoom.lastSeenMessage;
 
       commit('removeTyping');
       // TODO save message in draft
