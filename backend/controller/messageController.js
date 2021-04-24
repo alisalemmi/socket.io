@@ -17,15 +17,18 @@ exports.create = message => {
 /**
  * get latest messages of a room
  * @param {string} roomId
- * @param {number} offset
+ * @param {Boolean} direction `true`: forward
+ * @param {Date} date
  */
-exports.getHistory = async (roomId, offset) => {
+exports.getHistory = async (roomId, direction, date) => {
   const messages = await Message.aggregate()
     .match({
-      room: ObjectId(roomId)
+      room: ObjectId(roomId),
+      time: {
+        [direction ? '$lt' : '$gt']: new Date(date)
+      }
     })
-    .sort({ time: -1 })
-    .skip(offset)
+    .sort({ time: direction ? -1 : 1 })
     .limit(20)
     .project({
       _id: false,
@@ -35,8 +38,7 @@ exports.getHistory = async (roomId, offset) => {
       time: true,
       edited: true,
       quoteRef: true
-    })
-    .sort({ time: 1 });
+    });
 
   return messages;
 };

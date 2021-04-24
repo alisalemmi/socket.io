@@ -142,11 +142,24 @@ export default {
     onDelete: ({ commit }, message) => {
       commit('deleteMessage', message);
     },
-    getHistory: ({ state, getters, commit, dispatch }) => {
+    getHistory: ({ state, getters, commit, dispatch }, direction) => {
+      let date = 0;
+
+      if (Object.keys(getters.currentRoom.messages).length === 1)
+        date = getters.meInCurrentRoom.lastSeenMessage;
+      else
+        date =
+          getters.messages[direction ? 0 : getters.messages.length - 1]?.time ||
+          0;
+
       return new Promise(res =>
         socket.emit(
           'getHistory',
-          { room: state.currentRoom, offset: getters.messages.length },
+          {
+            room: state.currentRoom,
+            direction,
+            date
+          },
           history => {
             if (history.room in state.rooms)
               history.messages.forEach(message =>

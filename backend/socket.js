@@ -78,10 +78,10 @@ const updateUserStatus = (socket, status) => {
  * get messages history of a room
  * @param {import('socket.io').Socket} socket
  */
-const getHistory = async ({ room, offset }, callback) => {
+const getHistory = async ({ room, direction, date }, callback) => {
   callback({
     room,
-    messages: await messageController.getHistory(room, offset)
+    messages: await messageController.getHistory(room, direction, date)
   });
 };
 

@@ -11,21 +11,22 @@
       @click='changeRoom(room.id)'
     )
 
-  .chat__message(ref='chatMessage')
-    infinite-loading(
-      direction='top',
-      :identifier='currentRoom',
-      spinner='spiral',
-      @infinite='loadMessage'
-    )
-      span(slot='no-more')
-      span(slot='no-results')
-      span(slot='error')
-
+  infinite-scroll.chat__message(
+    :busyUp='busy.up',
+    :busyDown='busy.down',
+    :completeUp='complete.up',
+    :completeDown='complete.down',
+    :tab='currentRoom',
+    @load='loadMessage',
+    @initiated='initiated'
+  )
     template(v-for='message in messages')
       .chat__timeline(v-if='message.timeline', :key='`${message.id}-time`') {{ message.time | formatTime }}
 
-      .chat__unread(:key='message.id', v-if='message.id === "unread"') پیام های خوانده نشده
+      #chat__unread.chat__unread(
+        :key='message.id',
+        v-if='message.id === "unread"'
+      ) پیام های خوانده نشده
 
       message(
         :key='message.id',
@@ -64,7 +65,7 @@
 
 <script>
 import { mapState, mapGetters, mapActions } from 'vuex';
-import infiniteLoading from 'vue-infinite-loading';
+import infiniteScroll from '@/components/InfiniteScroll.vue';
 import ContextMenu from '@/components/Context';
 import { prompt } from '@/components/Prompt';
 import { getDate } from '@/util/time';
@@ -76,10 +77,12 @@ let observer;
 
 export default {
   name: 'Chat',
-  components: { Room, Send, Message, infiniteLoading, ContextMenu },
+  components: { Room, Send, Message, infiniteScroll, ContextMenu },
   data: function () {
     return {
       state: 'send',
+      busy: { up: false, down: false },
+      complete: { up: false, down: false },
       message: '',
       selectedMessage: {},
       menuOptions: [
@@ -100,13 +103,19 @@ export default {
       'changeRoom',
       'readMessage'
     ]),
-    loadMessage: async function (state) {
+    loadMessage: async function (direction) {
       if (!this.currentRoom) return;
 
-      const messages = await this.getHistory();
+      const dir = direction ? 'up' : 'down';
 
-      if (messages.length) state.loaded();
-      else state.complete();
+      this.busy[dir] = true;
+      const messages = await this.getHistory(direction);
+      this.busy[dir] = false;
+
+      if (!messages.length) this.complete[dir] = true;
+    },
+    initiated: function () {
+      this.scrollTo('chat__unread') || this.scrollToEnd();
     },
     resetState: function (clearInput = false) {
       this.state = 'send';
@@ -178,15 +187,17 @@ export default {
       }
     },
     quoteClicked: function (quoteRef) {
-      document
-        .getElementById(quoteRef)
-        .scrollIntoView({ behavior: 'smooth', block: 'center' });
+      this.scrollTo(quoteRef);
+    },
+    scrollTo: function (id) {
+      const el = document.getElementById(id);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+      return el != undefined;
     },
     scrollToEnd: function () {
-      this.$nextTick(() => {
-        if (this.$el.children[1] && this.$el.children[1].lastChild)
-          this.$el.children[1].lastChild.scrollIntoView({ behavior: 'smooth' });
-      });
+      if (this.$el.children[1]?.lastChild)
+        this.$el.children[1].lastChild.scrollIntoView({ behavior: 'smooth' });
     }
   },
   computed: {
@@ -307,7 +318,7 @@ export default {
     font-size: 1.2rem;
     text-align: center;
     border-radius: 10rem;
-    background-color: adjust-color($color: $background-white-2, $alpha: 1);
+    background-color: $background-white-3;
   }
 }
 </style>
