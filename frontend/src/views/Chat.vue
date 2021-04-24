@@ -12,6 +12,7 @@
     )
 
   infinite-scroll.chat__message(
+    ref='infiniteScroll',
     :busyUp='busy.up',
     :busyDown='busy.down',
     :completeUp='complete.up',
@@ -100,7 +101,6 @@ export default {
       'deleteMessage',
       'sendTyping',
       'getHistory',
-      'changeRoom',
       'readMessage'
     ]),
     loadMessage: async function (direction) {
@@ -116,6 +116,10 @@ export default {
     },
     initiated: function () {
       this.scrollTo('chat__unread') || this.scrollToEnd();
+    },
+    changeRoom: function (roomId) {
+      this.$store.dispatch('changeRoom', roomId);
+      observer.disconnect();
     },
     resetState: function (clearInput = false) {
       this.state = 'send';
@@ -214,25 +218,26 @@ export default {
 
       const old = new Set(from.map(f => f.id));
 
-      to.slice(unreadIndex + 1).forEach(t => {
-        if (!old.has(t.id)) {
+      to.slice(unreadIndex + 1)
+        .filter(t => !old.has(t.id))
+        .forEach(t => {
           this.$nextTick(() => observer.observe(document.getElementById(t.id)));
-        }
-      });
+        });
     }
   },
   mounted: function () {
     observer = new IntersectionObserver(
       e => {
-        e.forEach(message => {
-          if (message.isIntersecting) {
-            observer.unobserve(message.target);
-            this.readMessage(message.target.id);
-          }
-        });
+        if (!this.busy.up && !this.busy.down)
+          e.forEach(message => {
+            if (message.isIntersecting) {
+              observer.unobserve(message.target);
+              this.readMessage(message.target.id);
+            }
+          });
       },
       {
-        root: this.$refs.chatMessage,
+        root: this.$refs.infiniteScroll.$el,
         threshold: 1.0
       }
     );

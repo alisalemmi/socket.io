@@ -1,5 +1,5 @@
 <template lang="pug">
-.infinite-scroll(@scroll='scroll', ref='chatMessage')
+.infinite-scroll(@scroll='scroll')
   .infinite-scroll__spinner(v-show='busyUp')
   slot
   .infinite-scroll__spinner(v-show='busyDown')
@@ -48,8 +48,6 @@ export default {
           : this.completeDown || this.busyDown)
       )
         return;
-
-      console.log(`load:${direction ? 'up' : 'down'}`);
 
       this.$emit('load', direction);
     },
