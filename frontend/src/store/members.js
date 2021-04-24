@@ -28,7 +28,10 @@ export default {
         Vue.set(state.members, member.id, {
           name: member.name,
           image: member.image,
-          lastSeen: new Date(member.lastSeen).getTime()
+          lastSeen:
+            member.lastSeen === 'online'
+              ? 'online'
+              : new Date(member.lastSeen).getTime()
         })
       );
     },
