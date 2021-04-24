@@ -27,6 +27,7 @@ li.chat__room__box(
   h4.chat__room__title(:title='name') {{ name }}
   span.chat__room__date {{ getLastTime }}
   p.chat__room__last {{ lastMessage }}
+  .chat__room__unread(v-if='unreadMessages') {{ unreadMessages >= 100 ? "+99" : unreadMessages }}
 </template>
 
 <script>
@@ -34,7 +35,7 @@ import { getDate } from '@/util/time';
 
 export default {
   name: 'chatRoom',
-  props: ['members', 'lastTime', 'lastMessage', 'select'],
+  props: ['members', 'lastTime', 'lastMessage', 'unreadMessages', 'select'],
   computed: {
     name: function () {
       const names = Object.values(this.members).map(member => member.name);
@@ -74,8 +75,8 @@ export default {
     display: grid;
     grid-template-columns: $image-size 1fr max-content;
     grid-template-areas:
-      'image title date'
-      'image last last';
+      'image title date date'
+      'image last last unread';
     grid-gap: 0.5rem 1.5rem;
 
     padding: $padding-tb $padding-lr;
@@ -235,6 +236,28 @@ export default {
     text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
+  }
+
+  &__unread {
+    $size: 1.8rem;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    grid-area: unread;
+    justify-self: center;
+    align-self: center;
+
+    direction: ltr;
+    height: $size;
+    min-width: $size;
+    padding: 0 0.5rem;
+
+    font-size: 1.2rem;
+    border-radius: $size / 2;
+    color: #fff;
+    background-color: $color-blue;
   }
 }
 </style>

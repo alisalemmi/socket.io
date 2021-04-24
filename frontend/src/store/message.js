@@ -19,6 +19,21 @@ export default {
 
       return lastMessages;
     },
+    unreadMessages: state => {
+      return Object.fromEntries(
+        Object.entries(state.rooms).map(([id, room]) => {
+          const lastSeen = room.members[state.me].lastSeenMessage;
+
+          const unreadCount = Object.values(room.messages).reduce(
+            (unread, message) =>
+              message.time > lastSeen ? unread + 1 : unread,
+            0
+          );
+
+          return [id, unreadCount];
+        })
+      );
+    },
     messages: (state, { currentRoom, meInCurrentRoom }) => {
       if (!currentRoom?.messages) return [];
 

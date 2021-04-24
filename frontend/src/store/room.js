@@ -6,12 +6,13 @@ export default {
     currentRoom: ''
   },
   getters: {
-    rooms: (state, { lastMessages }) => {
+    rooms: (state, { lastMessages, unreadMessages }) => {
       return Object.entries(state.rooms)
         .sort(([a], [b]) => lastMessages[b].time - lastMessages[a].time)
         .map(([id, room]) => ({
           id,
           lastMessage: lastMessages[id],
+          unreadMessages: unreadMessages[id],
           members: Object.entries(room.members)
             .filter(([id]) => id !== state.me)
             .map(([id, { lastSeenMessage }]) => {

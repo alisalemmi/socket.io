@@ -6,6 +6,7 @@
       :key='room.id',
       :members='room.members',
       :lastMessage='room.lastMessage.text',
+      :unreadMessages='room.unreadMessages',
       :lastTime='room.lastMessage.time',
       :select='room.id === currentRoom',
       @click='changeRoom(room.id)'
