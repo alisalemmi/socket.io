@@ -117,7 +117,8 @@ export default {
       if (messages.length === +!direction) this.complete[dir] = true;
     },
     initiated: function () {
-      this.scrollTo('chat__unread') || this.scrollToEnd();
+      this.$refs.infiniteScroll.scrollTo('chat__unread') ||
+        this.$refs.infiniteScroll.scrollToEnd();
     },
     resetState: function (clearInput = false) {
       this.state = 'send';
@@ -189,17 +190,7 @@ export default {
       }
     },
     quoteClicked: function (quoteRef) {
-      this.scrollTo(quoteRef);
-    },
-    scrollTo: function (id) {
-      const el = document.getElementById(id);
-      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-      return el != undefined;
-    },
-    scrollToEnd: function () {
-      if (this.$el.children[1]?.lastChild)
-        this.$el.children[1].lastChild.scrollIntoView({ behavior: 'smooth' });
+      this.$refs.infiniteScroll.scrollTo(quoteRef);
     }
   },
   computed: {
@@ -211,6 +202,9 @@ export default {
   },
   watch: {
     messages: function (to, from) {
+      if (to.length - from.length === 1)
+        this.$nextTick(() => this.$refs.infiniteScroll.scrollToEnd(true));
+
       const unreadIndex = to.findIndex(message => message.id === 'unread');
       if (unreadIndex === -1) return;
 

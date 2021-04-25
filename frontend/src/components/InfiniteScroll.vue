@@ -1,5 +1,5 @@
 <template lang="pug">
-.infinite-scroll(@scroll='scroll')
+.infinite-scroll(@scroll='onScroll')
   .infinite-scroll__spinner(v-show='busyUp')
   slot
   .infinite-scroll__spinner(v-show='busyDown')
@@ -51,14 +51,32 @@ export default {
 
       this.$emit('load', direction);
     },
-    scroll: throttle(function ({ target }) {
+    onScroll: throttle(function ({ target }) {
       if (target.scrollTop < 200) this.load(true);
       else if (
         target.scrollHeight - target.scrollTop - target.offsetHeight <
         200
       )
         this.load(false);
-    }, 300)
+    }, 300),
+    scrollTo: function (id) {
+      const el = document.getElementById(id);
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+      return el != undefined;
+    },
+    scrollToEnd: function (force = false) {
+      if (
+        !force ||
+        this.$el.scrollHeight - this.$el.scrollTop - this.$el.offsetHeight > 200
+      )
+        return;
+
+      this.$nextTick(() => {
+        const l = this.$el.children;
+        l[l.length - 3]?.scrollIntoView({ behavior: 'smooth' });
+      });
+    }
   },
   watch: {
     tab: function (to) {
