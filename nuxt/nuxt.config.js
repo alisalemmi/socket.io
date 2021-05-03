@@ -20,7 +20,7 @@ export default {
   css: ['vuesax/dist/vuesax.css'],
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
-  plugins: ['@/plugins/vuesax'],
+  plugins: ['@/plugins/initClassStyle.ts', '@/plugins/vuesax'],
 
   // Auto import components: https://go.nuxtjs.dev/config-components
   components: true,
@@ -41,5 +41,12 @@ export default {
   axios: {},
 
   // Build Configuration: https://go.nuxtjs.dev/config-build
-  build: {}
+  build: {
+    babel: {
+      plugins: [
+        ['@babel/proposal-decorators', { legacy: true }],
+        ['@babel/proposal-class-properties', { loose: true }]
+      ]
+    }
+  }
 };
