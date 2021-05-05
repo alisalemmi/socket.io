@@ -38,7 +38,8 @@ export default {
   // Modules: https://go.nuxtjs.dev/config-modules
   modules: [
     // https://go.nuxtjs.dev/axios
-    '@nuxtjs/axios'
+    '@nuxtjs/axios',
+    '@nuxtjs/proxy'
   ],
 
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
@@ -51,6 +52,14 @@ export default {
         ['@babel/proposal-decorators', { legacy: true }],
         ['@babel/proposal-class-properties', { loose: true }]
       ]
+    }
+  },
+
+  proxy: {
+    '/socket.io': {
+      target: 'http://localhost:3002',
+      changeOrigin: true,
+      ws: true
     }
   }
 };
