@@ -20,7 +20,11 @@ export default {
   css: ['vuesax/dist/vuesax.css'],
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
-  plugins: ['@/plugins/initClassStyle.ts', '@/plugins/vuesax'],
+  plugins: [
+    '@/plugins/initClassStyle.ts',
+    { src: '@/plugins/socket.io.ts', ssr: false },
+    '@/plugins/vuesax'
+  ],
 
   // Auto import components: https://go.nuxtjs.dev/config-components
   components: true,
