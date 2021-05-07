@@ -13,8 +13,8 @@ const injectSocket: Plugin = ({ store }) => {
 
   Vue.use(VueSocketIOExt, socket, {
     store,
-    actionPrefix: 'on',
-    mutationPrefix: 'at',
+    actionPrefix: 'at',
+    mutationPrefix: 'on',
     eventToMutationTransformer: transformName,
     eventToActionTransformer: transformName
   });

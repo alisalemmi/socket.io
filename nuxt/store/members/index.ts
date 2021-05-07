@@ -8,16 +8,16 @@ import {
 
 @Module({ stateFactory: true, name: 'members' })
 export default class Members extends VuexModule {
-  userId: string | null = null;
+  me: string | null = null;
   members = new Map<string, Member>();
 
   @Mutation
-  atMe(userId: string) {
-    this.userId = userId;
+  onMe(userId: string) {
+    this.me = userId;
   }
 
   @Mutation
-  atMembers(members: IUnparsedMember[]) {
+  onMembers(members: IUnparsedMember[]) {
     members.forEach(member =>
       this.members.set(
         member.id,
@@ -27,14 +27,14 @@ export default class Members extends VuexModule {
   }
 
   @Mutation
-  atUserConnect({ userId }: IUserConnect) {
+  onUserConnect({ userId }: IUserConnect) {
     const member = this.members.get(userId);
 
     if (member) member.lastSeen = 'online';
   }
 
   @Mutation
-  atUserDisconnect({ userId, time }: IUserDisconnect) {
+  onUserDisconnect({ userId, time }: IUserDisconnect) {
     const member = this.members.get(userId);
 
     if (member) member.lastSeen = new Date(time).getTime();
