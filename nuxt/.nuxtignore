@@ -1,3 +1,4 @@
 # store
-store/members/member.ts
-store/members/typingUser.ts
+# only index.ts will be create module 
+store/*/*
+!store/*/index.ts
