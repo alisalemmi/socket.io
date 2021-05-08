@@ -1,10 +1,7 @@
 import { VuexModule, Module, Mutation } from 'vuex-module-decorators';
-import {
-  Member,
-  IUnparsedMember,
-  IUserConnect,
-  IUserDisconnect
-} from './member';
+import { Member } from './member';
+
+import type { IUnparsedMember, IUserConnect, IUserDisconnect } from './member';
 
 @Module({ stateFactory: true, name: 'members' })
 export default class Members extends VuexModule {
