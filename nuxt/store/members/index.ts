@@ -7,12 +7,16 @@ import type { IUnparsedMember, IUserConnect, IUserDisconnect } from './member';
 
 @Module({ stateFactory: true, name: 'members', namespaced: true })
 export default class Members extends VuexModule {
-  me: string | null = null;
+  private _me: string | null = null;
   readonly members: { readonly [id: string]: Member | undefined } = {};
+
+  get me() {
+    return this._me;
+  }
 
   @Mutation
   onMe(userId: string) {
-    this.me = userId;
+    this._me = userId;
   }
 
   @Mutation

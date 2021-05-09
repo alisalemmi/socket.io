@@ -15,15 +15,23 @@ export interface IUserDisconnect {
 }
 
 export class Member {
-  name: string;
-  image: string;
+  private _name: string;
+  private _image: string;
   private _lastSeen: number | 'online';
 
   constructor(name: string, image: string, lastSeen: string) {
-    this.name = name;
-    this.image = image;
+    this._name = name;
+    this._image = image;
     this._lastSeen =
       lastSeen === 'online' ? 'online' : new Date(lastSeen).getTime() || 0;
+  }
+
+  get name() {
+    return this._name;
+  }
+
+  get image() {
+    return this._image;
   }
 
   get lastSeen() {
