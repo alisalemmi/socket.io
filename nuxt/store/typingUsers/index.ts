@@ -10,22 +10,28 @@ interface ITypingUser {
 
 @Module({ stateFactory: true, name: 'typingUsers', namespaced: true })
 export default class TypingUsers extends VuexModule {
-  readonly users: string[] = [];
+  private _users: string[] = [];
   private timeOut: Map<string, number> = new Map();
   private lastSend = 0;
 
+  get users() {
+    return this._users
+      .map(user => Members.members[user]?.name)
+      .filter(name => name);
+  }
+
   @Mutation
   private addUser(userId: string) {
-    if (this.users.includes(userId)) clearTimeout(this.timeOut.get(userId));
-    else this.users.push(userId);
+    if (this._users.includes(userId)) clearTimeout(this.timeOut.get(userId));
+    else this._users.push(userId);
   }
 
   @Mutation
   private removeUser(userId: string) {
-    const i = this.users.indexOf(userId);
+    const i = this._users.indexOf(userId);
 
     if (i >= 0) {
-      this.users.splice(i, 1);
+      this._users.splice(i, 1);
       this.timeOut.delete(userId);
     }
   }
