@@ -2,7 +2,6 @@ import Vue from 'vue';
 import { VuexModule, Module, Mutation } from 'vuex-module-decorators';
 
 import { Member } from './member';
-
 import type { IUnparsedMember, IUserConnect, IUserDisconnect } from './member';
 
 @Module({ stateFactory: true, name: 'members', namespaced: true })
