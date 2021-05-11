@@ -11,10 +11,11 @@ send(
 <script lang="tsx">
 import Vue from 'vue';
 import { Component } from 'vue-property-decorator';
-import { TypingUsers } from '@/store';
-import Send, { sendState } from '@/components/Send.vue';
 
-@Component({ components: { Send } })
+import { TypingUsers } from '@/store';
+import { sendState } from '@/components/Send.vue';
+
+@Component
 export default class Chat extends Vue {
   selectedMessage = {};
   sendState = sendState.Send;
