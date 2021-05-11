@@ -1,55 +1,53 @@
-<template>
-  <div>
-    <Nuxt />
-  </div>
+<template lang="pug">
+#app
+  Nuxt
 </template>
 
-<style>
-html {
-  font-family: 'Source Sans Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI',
-    Roboto, 'Helvetica Neue', Arial, sans-serif;
-  font-size: 16px;
-  word-spacing: 1px;
-  -ms-text-size-adjust: 100%;
-  -webkit-text-size-adjust: 100%;
-  -moz-osx-font-smoothing: grayscale;
-  -webkit-font-smoothing: antialiased;
-  box-sizing: border-box;
+<style lang="scss">
+@font-face {
+  font-family: vazir;
+  src: url('@/static/font/Vazir-FD.ttf');
 }
 
 *,
 *::before,
 *::after {
+  font-family: vazir, sans-serif;
   box-sizing: border-box;
   margin: 0;
+  padding: 0;
 }
 
-.button--green {
-  display: inline-block;
-  border-radius: 4px;
-  border: 1px solid #3b8070;
-  color: #3b8070;
-  text-decoration: none;
-  padding: 10px 30px;
+html {
+  direction: rtl;
+  height: 100%;
+  font-size: 62.5%;
+
+  @include respond(big-desktop) {
+    font-size: 70%;
+  }
+  @include respond(tab-land) {
+    font-size: 58%;
+  }
+  @include respond(tab-port) {
+    font-size: 55%;
+  }
+  @include respond(phone) {
+    font-size: 45%;
+  }
 }
 
-.button--green:hover {
-  color: #fff;
-  background-color: #3b8070;
+body {
+  height: 100%;
 }
 
-.button--grey {
-  display: inline-block;
-  border-radius: 4px;
-  border: 1px solid #35495e;
-  color: #35495e;
-  text-decoration: none;
-  padding: 10px 30px;
-  margin-left: 15px;
+a {
+  outline: none;
 }
 
-.button--grey:hover {
-  color: #fff;
-  background-color: #35495e;
+#app {
+  color: $color-text;
+  font-size: 1.5rem;
+  height: 100%;
 }
 </style>
