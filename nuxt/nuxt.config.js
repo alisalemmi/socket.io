@@ -17,7 +17,10 @@ export default {
   },
 
   // Global CSS: https://go.nuxtjs.dev/config-css
-  css: ['vuesax/dist/vuesax.css'],
+  css: [
+    'vuesax/dist/vuesax.css',
+    process.env.NODE_ENV === 'development' ? '@/assets/scss/dev.scss' : ''
+  ],
 
   styleResources: {
     scss: ['~/assets/scss/_*.scss']
