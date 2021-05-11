@@ -46,8 +46,8 @@ a {
 }
 
 #app {
+  height: 100%;
   color: $color-text;
   font-size: 1.5rem;
-  height: 100%;
 }
 </style>
