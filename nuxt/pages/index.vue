@@ -3,7 +3,8 @@ send(
   v-model='messageText',
   :state='sendState',
   :selectedMessage='selectedMessage',
-  :typingUsers='typingUsers'
+  :typingUsers='typingUsers',
+  @type='type'
 )
 </template>
 
@@ -22,6 +23,8 @@ export default class Chat extends Vue {
   get typingUsers() {
     return TypingUsers.users;
   }
+
+  type = TypingUsers.type;
 }
 </script>
 
