@@ -4,9 +4,9 @@ export default {
 
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
-    title: 'chat',
+    title: 'مدکام',
     htmlAttrs: {
-      lang: 'en'
+      lang: 'fa'
     },
     meta: [
       { charset: 'utf-8' },
@@ -19,11 +19,12 @@ export default {
   // Global CSS: https://go.nuxtjs.dev/config-css
   css: [
     'vuesax/dist/vuesax.css',
+    '@/assets/scss/global.scss',
     process.env.NODE_ENV === 'development' ? '@/assets/scss/dev.scss' : ''
   ],
 
   styleResources: {
-    scss: ['~/assets/scss/_*.scss']
+    scss: ['~/assets/scss/_*.scss', '~/assets/scss/**/_*.scss']
   },
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
