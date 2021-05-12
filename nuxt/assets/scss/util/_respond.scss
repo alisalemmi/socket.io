@@ -16,8 +16,12 @@
     }
   }
   @if $device == tab-port-touch {
-    @media only screen and (min-width: $phone + $px) and (max-width: $tab-port),
-      only screen and (hover: none) {
+    @media only screen and (min-width: $phone + $px) and (max-width: $tab-port) and (hover: none) {
+      @content;
+    }
+  }
+  @if $device == tab-port-hover {
+    @media only screen and (min-width: $phone + $px) and (max-width: $tab-port) and (hover: hover) {
       @content;
     }
   }
