@@ -10,14 +10,18 @@ export class Chunk {
     this.messages = messages;
   }
 
+  get lastMessage() {
+    return this.messages.length
+      ? this.messages[this.messages.length - 1]
+      : undefined;
+  }
+
   get from() {
     return this.messages.length ? this.messages[0].time : 0;
   }
 
   get to() {
-    return this.messages.length
-      ? this.messages[this.messages.length - 1].time
-      : 0;
+    return this.lastMessage?.time || 0;
   }
 
   private insert(message: Message) {
@@ -38,7 +42,7 @@ export class Chunk {
     }
 
     if (i > 0 && this.messages[i - 1].id === message.id)
-      this.messages[i - 1] = message;
+      this.messages.splice(i - 1, 1, message);
     else this.messages.splice(i, 0, message);
   }
 

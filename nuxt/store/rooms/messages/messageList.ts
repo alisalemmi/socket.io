@@ -48,6 +48,10 @@ export class MessageList {
     }
   }
 
+  get lastMessage() {
+    return this.chunks[this.chunks.length - 1]?.lastMessage;
+  }
+
   add(message: IUnparsedMessage[]): void;
   add(messages: IUnparsedMessage): void;
   add(message: IUnparsedMessage | IUnparsedMessage[]) {
