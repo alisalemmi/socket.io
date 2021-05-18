@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "پیامرسان با استفاده از socket.io",
   "scripts": {
-    "start": "nodemon backend/server.js"
+    "start": "nodemon -w backend backend/server.js"
   },
   "husky": {
     "hooks": {
