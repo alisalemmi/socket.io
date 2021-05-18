@@ -1,8 +1,9 @@
 import Vue from 'vue';
 import { VuexModule, Module, Mutation } from 'vuex-module-decorators';
 
+import type { IUnparsedRoom } from '@/@types';
+
 import { Room } from './room';
-import type { IUnparsedRoom } from './room';
 
 @Module({ stateFactory: true, name: 'rooms', namespaced: true })
 export default class Rooms extends VuexModule {

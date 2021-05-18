@@ -1,18 +1,8 @@
 import Vue from 'vue';
 
+import type { IUnparsedRoomMember, IUnparsedMessage } from '@/@types';
+
 import { MessageList } from './messages';
-import type { IUnparsedMessage } from './messages';
-
-interface IUnparsedRoomMember {
-  id: string;
-  lastSeenMessage: string;
-}
-
-export interface IUnparsedRoom {
-  id: string;
-  members: IUnparsedRoomMember[];
-  lastMessage?: IUnparsedMessage;
-}
 
 export class Room {
   private membersLastSeen: { readonly [id: string]: number } = {};
@@ -20,7 +10,6 @@ export class Room {
 
   constructor(members: IUnparsedRoomMember[], lastMessage?: IUnparsedMessage) {
     members.forEach(member =>
-      // FIXME: nead `Vue.set`?
       Vue.set(
         this.membersLastSeen,
         member.id,

@@ -1,8 +1,9 @@
 import Vue from 'vue';
 import { VuexModule, Module, Mutation } from 'vuex-module-decorators';
 
+import type { IUnparsedMember, IUserConnect, IUserDisconnect } from '@/@types';
+
 import { Member } from './member';
-import type { IUnparsedMember, IUserConnect, IUserDisconnect } from './member';
 
 @Module({ stateFactory: true, name: 'members', namespaced: true })
 export default class Members extends VuexModule {

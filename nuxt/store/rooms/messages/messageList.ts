@@ -1,7 +1,7 @@
+import type { IUnparsedMessage } from '@/@types';
+
 import { Message } from './message';
 import { Chunk } from './chunk';
-
-import type { IUnparsedMessage } from './message';
 
 export class MessageList {
   private chunks: Chunk[] = [];

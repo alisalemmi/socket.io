@@ -1,12 +1,9 @@
 import { VuexModule, Module, Mutation, Action } from 'vuex-module-decorators';
+
+import type { ITypingUser } from '@/@types';
+
 import { $socket } from '@/util/initialize/socket.io';
 import { Rooms, Members } from '@/store';
-
-interface ITypingUser {
-  userId: string;
-  room: string;
-  expires: number;
-}
 
 @Module({ stateFactory: true, name: 'typingUsers', namespaced: true })
 export default class TypingUsers extends VuexModule {
