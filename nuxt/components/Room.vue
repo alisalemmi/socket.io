@@ -109,11 +109,11 @@ export default class Room extends Vue {
   @include no-drag();
 
   &:hover {
-    background-color: $color-white-4;
+    background-color: $color-white-5;
   }
 
   &--select {
-    background-color: $color-white-4;
+    background-color: $color-white-6;
   }
 
   &__name {

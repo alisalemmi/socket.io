@@ -107,12 +107,12 @@ export default class Send extends Vue {
 
 <style lang="scss">
 .send {
+  $margin: 1.5rem;
   $padding-message-tb: 1.7rem;
   $padding-message-lr: 2.5rem;
   $font-size: 1.5rem;
   $line-height: 1.5;
   $send-icon-size: 3.5rem;
-  $background: #f1f1f1;
 
   position: relative;
 
@@ -139,9 +139,11 @@ export default class Send extends Vue {
 
     &__box {
       position: relative;
+      margin: $margin;
+
       overflow: hidden;
 
-      @include round-box($background: $background, $box-shadow: none);
+      @include round-box($background: $color-white-5, $box-shadow: $shadow-3);
     }
   }
 
@@ -258,7 +260,7 @@ export default class Send extends Vue {
     padding: 1rem;
 
     border-radius: 1rem;
-    background-color: darken($background, 5%);
+    background-color: $color-white-7;
 
     &__icon {
       width: $icon-size;
@@ -323,8 +325,8 @@ export default class Send extends Vue {
     position: absolute;
     bottom: (
         $font-size * $line-height + 2 * $padding-message-tb - $send-icon-size
-      ) / 2 + 0.2rem;
-    left: $padding-message-lr / 2;
+      ) / 2 + 0.2rem + $margin;
+    left: $padding-message-lr / 2 + $margin;
 
     border-radius: 1rem;
 
