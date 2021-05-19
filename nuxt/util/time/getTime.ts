@@ -1,10 +1,8 @@
 /**
  * get time at `HH:MM`. if `time` was not valid return `now`
- * @param time Date string
+ * @param time Date
  */
-export const getTime = (time: string) => {
-  if (!time) return;
-
+export const getTime = (time: string | number) => {
   let t = new Date(time);
   if (isNaN(t.getTime())) t = new Date();
 
