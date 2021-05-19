@@ -35,7 +35,7 @@ export default class Chat extends Vue {
 .chat {
   $sidebar-large-width: 30%;
   $sidebar-small-width: 35rem;
-  $sidebar-icon-only-width: 8rem;
+  $sidebar-icon-only-width: calc(44px + #{0.75rem * 2 + 0.1rem});
 
   &__body {
     display: grid;

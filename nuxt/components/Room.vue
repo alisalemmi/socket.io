@@ -83,14 +83,12 @@ export default class Room extends Vue {
 </script>
 
 <style lang="scss">
+$padding-tb: 2rem;
+$padding-lr: 1.5rem;
+$image-size: 5rem;
+$scroll-width: 0.75rem;
+
 .room {
-  $padding-tb: 2rem;
-  $padding-lr: 1.5rem;
-  $image-size: 5rem;
-  $scroll-width: 0.75rem;
-
-  padding: 2rem;
-
   display: grid;
   grid-template-columns: min-content 1fr max-content max-content;
   grid-template-areas:
