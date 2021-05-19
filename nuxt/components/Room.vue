@@ -1,13 +1,6 @@
 <template lang="pug">
 li.room(:class='{ "room--select": selected }')
-  vs-avatar.room__image(
-    :color='color()',
-    :title='name',
-    size='44',
-    :badge='isOnline',
-    badge-position='bottom-left'
-  )
-    template(#text) {{ members[0].name }}
+  avatar.room__image(:members='members', :name='name', :showStatus='true')
 
   h3.room__name {{ name }}
   p.room__last-message {{ lastMessage && lastMessage.text }}
@@ -23,28 +16,6 @@ import type { MembersGetter } from '@/@types';
 import type { Message } from '@/store/rooms/messages/message';
 
 import { getDate } from '@/util/time/getDate';
-
-const colors = [
-  '#673ab7',
-  '#9c27b0',
-  '#e91e63',
-  '#f44336',
-  '#009688',
-  '#00bcd4',
-  '#03a9f4',
-  '#2196f3',
-  '#3f51b5',
-  '#ffc107',
-  '#ffeb3b',
-  '#cddc39',
-  '#8bc34a',
-  '#4caf50',
-  '#607d8b',
-  '#9e9e9e',
-  '#795548',
-  '#ff5722',
-  '#ff9800'
-];
 
 @Component({
   filters: {
@@ -69,14 +40,6 @@ export default class Room extends Vue {
     const lastName = names.pop();
 
     return names.length ? `${names.join('، ')} و ${lastName}` : lastName;
-  }
-
-  get isOnline() {
-    return this.members.some(member => member.lastSeen === 'online');
-  }
-
-  color() {
-    return colors[Math.floor(Math.random() * colors.length)];
   }
 }
 </script>
