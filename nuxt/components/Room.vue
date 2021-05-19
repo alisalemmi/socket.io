@@ -1,6 +1,6 @@
 <template lang="pug">
 li.room(:class='{ "room--select": selected }')
-  avatar.room__image(:members='members', :name='name', :showStatus='true')
+  avatar.room__image(:member='members', :name='name', :showStatus='true')
 
   h3.room__name {{ name }}
   p.room__last-message {{ lastMessage && lastMessage.text }}

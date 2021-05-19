@@ -2,7 +2,7 @@
 vs-avatar(
   v-if='image',
   :color='color',
-  :title='name',
+  :title='_name',
   :badge='showStatus && isOnline',
   badge-position='bottom-left'
 )
@@ -11,17 +11,17 @@ vs-avatar(
 vs-avatar(
   v-else,
   :color='color',
-  :title='name',
+  :title='_name',
   :badge='showStatus && isOnline',
   badge-position='bottom-left'
 )
-  template(#text) {{ name }}
+  template(#text) {{ _name }}
 </template>
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
 
-import type { MembersGetter } from '@/@types';
+import type { MembersGetter, IMemberGetter } from '@/@types';
 
 const colors = [
   '#673ab7',
@@ -48,7 +48,7 @@ const colors = [
 @Component
 export default class Avatar extends Vue {
   @Prop()
-  private members!: MembersGetter;
+  private member!: MembersGetter | IMemberGetter;
 
   @Prop({ default: '' })
   private name!: string;
@@ -56,12 +56,25 @@ export default class Avatar extends Vue {
   @Prop({ default: false })
   private showStatus!: boolean;
 
+  get members() {
+    return Array.isArray(this.member) ? this.member : [this.member];
+  }
+
   get isGroup() {
     return this.members.length !== 1;
   }
 
+  get _name() {
+    return this.name || this.members[0].name;
+  }
+
+  get image() {
+    if (this.isGroup) return 'image/group.svg';
+    return this.members[0].image ? `image/${this.members[0].image}` : '';
+  }
+
   get color() {
-    if (this.isGroup || this.members[0].image) return 'transparent';
+    if (this.image) return 'transparent';
 
     return colors[
       this.members.reduce(
@@ -69,11 +82,6 @@ export default class Avatar extends Vue {
         0
       )
     ];
-  }
-
-  get image() {
-    if (this.isGroup) return `image/group.svg`;
-    return this.members[0].image ? `image/${this.members[0].image}` : '';
   }
 
   get isOnline() {

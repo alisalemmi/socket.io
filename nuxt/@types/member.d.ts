@@ -5,12 +5,14 @@ export interface IUnparsedMember {
   lastSeen: string | 'online';
 }
 
-export type MembersGetter = {
+export interface IMemberGetter {
   id: string;
   name: string;
   image: string;
   lastSeen: number | 'online';
-}[];
+}
+
+export type MembersGetter = IMemberGetter[];
 
 export interface IUserConnect {
   userId: string;
