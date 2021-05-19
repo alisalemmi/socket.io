@@ -10,14 +10,17 @@ li.room(:class='{ "room--select": selected }')
     template(#text) {{ members[0].name }}
 
   h3.room__name {{ name }}
-  p.room__last-message {{ lastMessage.text }}
-  span.room__date {{ lastMessage.time | getDate }}
+  p.room__last-message {{ lastMessage && lastMessage.text }}
+  span.room__date {{ lastMessage && lastMessage.time | getDate }}
   .room__unread(v-show='unread') {{ unread }}
 </template>
 
 <script lang="ts">
 import Vue from 'vue';
 import { Component, Prop } from 'vue-property-decorator';
+
+import type { MembersGetter } from '@/@types';
+import type { Message } from '@/store/rooms/messages/message';
 
 import { getDate } from '@/util/time/getDate';
 
@@ -53,17 +56,13 @@ export default class Room extends Vue {
   private readonly selected!: boolean;
 
   @Prop()
-  private readonly members!: {
-    id: string;
-    name: string;
-    lastSeen: number | 'online';
-  }[];
+  private readonly members!: MembersGetter;
 
   @Prop()
   private readonly unread!: number;
 
   @Prop()
-  private readonly lastMessage!: {};
+  private readonly lastMessage!: typeof Message | undefined;
 
   get name() {
     const names = this.members.map(member => member.name);
