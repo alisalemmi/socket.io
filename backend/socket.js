@@ -9,6 +9,7 @@ const { getUser, setLastSeen } = require('./controller/userController');
  * @type {import('socket.io').Server}
  */
 const io = socketio({ serveClient: false });
+redis.del('onlineUsers');
 
 /**
  *  find user and store its id in `socket.userId`
