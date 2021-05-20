@@ -2,7 +2,7 @@
 vs-avatar(
   v-if='image',
   :color='color',
-  :title='_name',
+  :title='title',
   :badge='showStatus && isOnline',
   badge-position='bottom-left'
 )
@@ -11,11 +11,11 @@ vs-avatar(
 vs-avatar(
   v-else,
   :color='color',
-  :title='_name',
+  :title='title',
   :badge='showStatus && isOnline',
   badge-position='bottom-left'
 )
-  template(#text) {{ _name }}
+  template(#text) {{ title }}
 </template>
 
 <script lang="ts">
@@ -64,7 +64,7 @@ export default class Avatar extends Vue {
     return this.members.length !== 1;
   }
 
-  get _name() {
+  get title() {
     return this.name || this.members[0].name;
   }
 
