@@ -1,7 +1,7 @@
 <template lang="pug">
 include ../assets/pug/icon
 
-form.send(@submit.prevent)
+form.send(:class='{ "send--close": !show }', @submit.prevent)
   .send__is-typing {{ typingUsersMessage }}
     - let n = 1;
     while n < 4
@@ -74,6 +74,9 @@ export default class Send extends Vue {
   @Prop()
   readonly typingUsers!: string[];
 
+  @Prop()
+  readonly show!: boolean;
+
   @Ref()
   readonly sendInput!: HTMLInputElement;
 
@@ -112,15 +115,22 @@ export default class Send extends Vue {
 </script>
 
 <style lang="scss">
-.send {
-  $margin: 1.5rem;
-  $padding-message-tb: 1.7rem;
-  $padding-message-lr: 2.5rem;
-  $font-size: 1.5rem;
-  $line-height: 1.5;
-  $send-icon-size: 3.5rem;
+$margin: 1.5rem;
+$padding-message-tb: 1.7rem;
+$padding-message-lr: 2.5rem;
+$font-size: 1.5rem;
+$line-height: 1.5;
+$send-icon-size: 3.5rem;
 
+.send {
   position: relative;
+
+  transition: all $selectRoomDuration ease;
+
+  &--close {
+    transform: translateY(100%);
+    opacity: 0;
+  }
 
   &__message {
     padding: $padding-message-tb $padding-message-lr $padding-message-tb
@@ -331,7 +341,7 @@ export default class Send extends Vue {
     position: absolute;
     bottom: (
         $font-size * $line-height + 2 * $padding-message-tb - $send-icon-size
-      ) / 2 + 0.2rem + $margin;
+      ) / 2 + $margin;
     left: $padding-message-lr / 2 + $margin;
 
     border-radius: 1rem;

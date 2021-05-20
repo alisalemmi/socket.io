@@ -1,10 +1,14 @@
 <template lang="pug">
 .chat__body
-  side-bar.chat__sidebar
+  side-bar.chat__sidebar(
+    :rooms='Rooms.rooms',
+    :currentRoom='Rooms.currentRoom'
+  )
 
   message-list.chat__messages(:currentRoom='Rooms.currentRoom')
 
   send.chat__send(
+    :show='Rooms.currentRoom',
     v-model='messageText',
     :state='sendState',
     :selectedMessage='selectedMessage',

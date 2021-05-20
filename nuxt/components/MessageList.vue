@@ -1,7 +1,9 @@
 <template lang="pug">
 section.message-list
   ul(v-if='currentRoom') TODO
-  span.message-list__init(v-else) برای شروع یک گفت و گو را انتخاب کنید
+
+  transition(v-else, name='message-list__select-room')
+    span.message-list__select-room برای شروع یک گفت و گو را انتخاب کنید
 </template>
 
 <script lang="ts">
@@ -18,7 +20,7 @@ export default class MessageList extends Vue {
 .message-list {
   position: relative;
 
-  &__init {
+  &__select-room {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -29,6 +31,13 @@ export default class MessageList extends Vue {
     text-align: center;
     border-radius: 10rem;
     background-color: $color-white-4;
+
+    transition: all $selectRoomDuration ease;
+
+    &-enter,
+    &-leave-to {
+      opacity: 0;
+    }
   }
 }
 </style>
