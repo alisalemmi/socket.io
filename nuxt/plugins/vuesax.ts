@@ -9,3 +9,9 @@ Vue.use(Vuesax, {
     secondary: '#e13e60'
   }
 });
+
+declare module 'vue/types/vue' {
+  interface Vue {
+    $vs: any;
+  }
+}
