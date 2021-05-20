@@ -1,5 +1,5 @@
 <template lang="pug">
-li.room(:class='{ "room--select": selected }')
+li.room(:class='{ "room--select": selected }', @click='$emit("click")')
   avatar.room__image(:member='members', :name='name', :showStatus='true')
 
   h3.room__name {{ name }}

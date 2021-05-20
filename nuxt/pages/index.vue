@@ -2,7 +2,8 @@
 .chat__body
   side-bar.chat__sidebar(
     :rooms='Rooms.rooms',
-    :currentRoom='Rooms.currentRoom'
+    :currentRoom='Rooms.currentRoom',
+    @select-room='Rooms.changeRoom($event)'
   )
 
   message-list.chat__messages(:currentRoom='Rooms.currentRoom')

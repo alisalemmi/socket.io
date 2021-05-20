@@ -6,7 +6,8 @@ ul.sidebar
     :unread='room.unread',
     :lastMessage='room.lastMessage',
     :members='room.members',
-    :selected='room.id === currentRoom'
+    :selected='room.id === currentRoom',
+    @click='$emit("select-room", room.id)'
   )
 </template>
 
