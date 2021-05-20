@@ -1,24 +1,25 @@
 <template lang="pug">
 ul.sidebar
   room(
-    v-for='room in Rooms.rooms',
+    v-for='room in rooms',
     :key='room.id',
     :unread='room.unread',
     :lastMessage='room.lastMessage',
     :members='room.members',
-    :selected='room.id === Rooms.currentRoom'
+    :selected='room.id === currentRoom'
   )
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
-import { Component } from 'vue-property-decorator';
-
-import { Rooms } from '@/store';
+import { Component, Prop, Vue } from 'vue-property-decorator';
 
 @Component
 export default class SideBar extends Vue {
-  readonly Rooms = Rooms;
+  @Prop()
+  readonly rooms!: {}; // FIXME: correct type: rooms
+
+  @Prop()
+  readonly currentRoom!: string | null;
 }
 </script>
 

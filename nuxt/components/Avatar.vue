@@ -48,13 +48,13 @@ const colors = [
 @Component
 export default class Avatar extends Vue {
   @Prop()
-  private member!: MembersGetter | IMemberGetter;
+  readonly member!: MembersGetter | IMemberGetter;
 
   @Prop({ default: '' })
-  private name!: string;
+  readonly name!: string;
 
   @Prop({ default: false })
-  private showStatus!: boolean;
+  readonly showStatus!: boolean;
 
   get members() {
     return Array.isArray(this.member) ? this.member : [this.member];

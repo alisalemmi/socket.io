@@ -9,8 +9,7 @@ li.room(:class='{ "room--select": selected }')
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
-import { Component, Prop } from 'vue-property-decorator';
+import { Component, Prop, Vue } from 'vue-property-decorator';
 
 import type { MembersGetter } from '@/@types';
 import type { Message } from '@/store/rooms/messages/message';
@@ -24,16 +23,16 @@ import { getDate } from '@/util/time/getDate';
 })
 export default class Room extends Vue {
   @Prop()
-  private readonly selected!: boolean;
+  readonly selected!: boolean;
 
   @Prop()
-  private readonly members!: MembersGetter;
+  readonly members!: MembersGetter;
 
   @Prop()
-  private readonly unread!: number;
+  readonly unread!: number;
 
   @Prop()
-  private readonly lastMessage!: typeof Message | undefined;
+  readonly lastMessage!: typeof Message | undefined;
 
   get name() {
     const names = this.members.map(member => member.name);

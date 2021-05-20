@@ -29,13 +29,13 @@ import { getTime } from '@/util/time/getTime';
 })
 export default class Message extends Vue {
   @Prop()
-  private text!: string;
+  readonly text!: string;
 
   @Prop()
-  private time!: number;
+  readonly time!: number;
 
   @Prop()
-  private sender!: IMemberGetter;
+  readonly sender!: IMemberGetter;
 }
 </script>
 

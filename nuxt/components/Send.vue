@@ -45,8 +45,14 @@ form.send(@submit.prevent)
 </template>
 
 <script lang="ts">
-import Vue from 'vue';
-import { VModel, Prop, Ref, Watch, Component } from 'vue-property-decorator';
+import {
+  VModel,
+  Prop,
+  Ref,
+  Watch,
+  Component,
+  Vue
+} from 'vue-property-decorator';
 
 export enum sendState {
   Send,
@@ -57,19 +63,19 @@ export enum sendState {
 @Component
 export default class Send extends Vue {
   @VModel()
-  private messageText!: string;
+  readonly messageText!: string;
 
   @Prop()
-  private state!: sendState;
+  readonly state!: sendState;
 
   @Prop()
-  private selectedMessage!: {};
+  readonly selectedMessage!: {}; // FIXME: correct type: selectedMessage
 
   @Prop()
-  private typingUsers!: string[];
+  readonly typingUsers!: string[];
 
   @Ref()
-  private readonly sendInput!: HTMLInputElement;
+  readonly sendInput!: HTMLInputElement;
 
   mounted() {
     this.$root.$on('escape', () => this.$emit('cancel'));

@@ -22,8 +22,8 @@ import { sendState } from '@/components/Send.vue';
 
 @Component
 export default class Chat extends Vue {
-  private Rooms = Rooms;
-  private TypingUsers = TypingUsers;
+  readonly Rooms = Rooms;
+  readonly TypingUsers = TypingUsers;
 
   selectedMessage = {};
   sendState = sendState.Send;
