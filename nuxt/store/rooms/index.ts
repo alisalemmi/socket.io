@@ -42,6 +42,5 @@ export default class Rooms extends VuexModule {
   @Action
   atRooms(rooms: IUnparsedRoom[]) {
     this.setRooms(rooms);
-    this.changeRoom(this.rooms[0].id);
   }
 }

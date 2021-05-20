@@ -1,12 +1,15 @@
 <template lang="pug">
 .chat__body
   side-bar.chat__sidebar
+
+  message-list.chat__messages(:currentRoom='Rooms.currentRoom')
+
   send.chat__send(
     v-model='messageText',
     :state='sendState',
     :selectedMessage='selectedMessage',
-    :typingUsers='typingUsers',
-    @type='type'
+    :typingUsers='TypingUsers.users',
+    @type='TypingUsers.type'
   )
 </template>
 
@@ -14,20 +17,17 @@
 import Vue from 'vue';
 import { Component } from 'vue-property-decorator';
 
-import { TypingUsers } from '@/store';
+import { TypingUsers, Rooms } from '@/store';
 import { sendState } from '@/components/Send.vue';
 
 @Component
 export default class Chat extends Vue {
+  private Rooms = Rooms;
+  private TypingUsers = TypingUsers;
+
   selectedMessage = {};
   sendState = sendState.Send;
   messageText = '';
-
-  get typingUsers() {
-    return TypingUsers.users;
-  }
-
-  type = TypingUsers.type;
 }
 </script>
 
@@ -106,6 +106,10 @@ export default class Chat extends Vue {
     }
 
     z-index: 10;
+  }
+
+  &__messages {
+    grid-area: messages;
   }
 
   &__send {
