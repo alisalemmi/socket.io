@@ -25,7 +25,7 @@ exports.getHistory = async (roomId, direction, date) => {
     .match({
       room: ObjectId(roomId),
       time: {
-        [direction ? '$lt' : '$gt']: new Date(date)
+        [direction ? '$lte' : '$gte']: new Date(date)
       }
     })
     .sort({ time: direction ? -1 : 1 })
