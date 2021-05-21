@@ -10,7 +10,7 @@ import { Members } from '@/store';
 import { MessageList } from './messages';
 
 export class Room {
-  private membersLastSeen: { readonly [id: string]: number } = {};
+  private membersLastSeen: { readonly [id: string]: number | undefined } = {};
   messages = new MessageList();
 
   constructor(members: IUnparsedRoomMember[], lastMessage?: IUnparsedMessage) {
@@ -38,5 +38,9 @@ export class Room {
           lastSeen: member?.lastSeen ?? 0
         };
       });
+  }
+
+  get lastSeen() {
+    return Members.me ? this.membersLastSeen[Members.me] ?? 0 : 0;
   }
 }
