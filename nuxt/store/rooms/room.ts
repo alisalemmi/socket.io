@@ -28,16 +28,7 @@ export class Room {
   get members(): MembersGetter {
     return Object.keys(this.membersLastSeen)
       .filter(memberId => memberId !== Members.me)
-      .map(memberId => {
-        const member = Members.members[memberId];
-
-        return {
-          id: memberId,
-          name: member?.name ?? '',
-          image: member?.image ?? '',
-          lastSeen: member?.lastSeen ?? 0
-        };
-      });
+      .map(memberId => Members.getMember(memberId));
   }
 
   get lastSeen() {

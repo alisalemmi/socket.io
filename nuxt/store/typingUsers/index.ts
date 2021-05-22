@@ -13,8 +13,8 @@ export default class TypingUsers extends VuexModule {
 
   get users(): typingUsersGetter {
     return this._users
-      .map(user => Members.members[user]?.name)
-      .filter(name => name) as string[];
+      .map(user => Members.getMember(user).name)
+      .filter(name => name);
   }
 
   @Mutation
