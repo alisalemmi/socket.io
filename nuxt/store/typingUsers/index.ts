@@ -1,6 +1,6 @@
 import { VuexModule, Module, Mutation, Action } from 'vuex-module-decorators';
 
-import type { ITypingUser } from '@/@types';
+import type { ITypingUser, typingUsersGetter } from '@/@types';
 
 import { $socket } from '@/util/initialize/socket.io';
 import { Rooms, Members } from '@/store';
@@ -11,10 +11,10 @@ export default class TypingUsers extends VuexModule {
   private timeOut: Map<string, number> = new Map();
   private lastSend = 0;
 
-  get users() {
+  get users(): typingUsersGetter {
     return this._users
       .map(user => Members.members[user]?.name)
-      .filter(name => name);
+      .filter(name => name) as string[];
   }
 
   @Mutation

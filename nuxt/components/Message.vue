@@ -18,7 +18,7 @@ aside.message
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
 
-import type { IMemberGetter } from '@/@types';
+import type { IMember } from '@/@types';
 
 import { getTime } from '@/util/time/getTime';
 
@@ -35,7 +35,7 @@ export default class Message extends Vue {
   readonly time!: number;
 
   @Prop()
-  readonly sender!: IMemberGetter;
+  readonly sender!: IMember;
 }
 </script>
 

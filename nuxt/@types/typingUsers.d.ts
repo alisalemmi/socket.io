@@ -3,3 +3,5 @@ export interface ITypingUser {
   room: string;
   expires: number;
 }
+
+export type typingUsersGetter = string[];

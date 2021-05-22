@@ -1,8 +1,8 @@
-import { IMemberGetter } from './member';
+import { IMember } from './member';
 
-export interface IMessageGetter {
+export interface IMessage {
   id: string;
-  sender: IMemberGetter;
+  sender: IMember;
   text: string;
   time: number;
   edited: boolean;

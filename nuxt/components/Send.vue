@@ -54,6 +54,8 @@ import {
   Vue
 } from 'vue-property-decorator';
 
+import type { IMessage, typingUsersGetter } from '@/@types';
+
 export enum sendState {
   Send,
   Edit,
@@ -69,10 +71,10 @@ export default class Send extends Vue {
   readonly state!: sendState;
 
   @Prop()
-  readonly selectedMessage!: {}; // FIXME: correct type: selectedMessage
+  readonly selectedMessage!: IMessage;
 
   @Prop()
-  readonly typingUsers!: string[];
+  readonly typingUsers!: typingUsersGetter;
 
   @Prop()
   readonly show!: boolean;

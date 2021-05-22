@@ -21,7 +21,7 @@ vs-avatar(
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
 
-import type { MembersGetter, IMemberGetter } from '@/@types';
+import type { MembersGetter, IMember } from '@/@types';
 
 const colors = [
   '#673ab7',
@@ -48,7 +48,7 @@ const colors = [
 @Component
 export default class Avatar extends Vue {
   @Prop()
-  readonly member!: MembersGetter | IMemberGetter;
+  readonly member!: MembersGetter | IMember;
 
   @Prop({ default: '' })
   readonly name!: string;
