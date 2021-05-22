@@ -4,7 +4,7 @@ li.room(:class='{ "room--select": selected }', @click='$emit("click")')
 
   h3.room__name {{ name }}
   p.room__last-message {{ lastMessage && lastMessage.text }}
-  span.room__date {{ lastMessage && lastMessage.time | getDate }}
+  span.room__date {{ lastMessage && lastMessage.time | getRelativeDate }}
   .room__unread(v-show='unread') {{ unread }}
 </template>
 
@@ -14,11 +14,11 @@ import { Component, Prop, Vue } from 'vue-property-decorator';
 import type { MembersGetter } from '@/@types';
 import type { Message } from '@/store/rooms/messages/message';
 
-import { getDate } from '@/util/time/getDate';
+import { getRelativeDate } from '~/util/time/getRelativeDate';
 
 @Component({
   filters: {
-    getDate
+    getRelativeDate
   }
 })
 export default class Room extends Vue {
