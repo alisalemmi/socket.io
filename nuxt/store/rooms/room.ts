@@ -9,11 +9,12 @@ import type {
 import { Members } from '@/store';
 import { MessageList } from './messages';
 
-export class Room {
+export class Room extends MessageList {
   private membersLastSeen: { readonly [id: string]: number | undefined } = {};
-  messages = new MessageList();
 
   constructor(members: IUnparsedRoomMember[], lastMessage?: IUnparsedMessage) {
+    super();
+
     members.forEach(member =>
       Vue.set(
         this.membersLastSeen,
@@ -22,7 +23,7 @@ export class Room {
       )
     );
 
-    if (lastMessage) this.messages.add(lastMessage);
+    if (lastMessage) this.addMessages(lastMessage);
   }
 
   get members(): MembersGetter {

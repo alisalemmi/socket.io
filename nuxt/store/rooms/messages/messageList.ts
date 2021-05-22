@@ -52,9 +52,9 @@ export class MessageList {
     return this.chunks[this.chunks.length - 1]?.lastMessage;
   }
 
-  add(message: IUnparsedMessage[]): void;
-  add(messages: IUnparsedMessage): void;
-  add(message: IUnparsedMessage | IUnparsedMessage[]) {
+  addMessages(messages: IUnparsedMessage[]): void;
+  addMessages(message: IUnparsedMessage): void;
+  addMessages(message: IUnparsedMessage | IUnparsedMessage[]) {
     // parse argument
     const messages = (!Array.isArray(message) ? [message] : message)
       .map(

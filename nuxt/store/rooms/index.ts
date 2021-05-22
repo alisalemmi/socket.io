@@ -15,14 +15,13 @@ export default class Rooms extends VuexModule {
     return Object.entries(this._rooms)
       .sort(
         ([_1, r1], [_2, r2]) =>
-          (r2?.messages.lastMessage?.time ?? 0) -
-          (r1?.messages.lastMessage?.time ?? 0)
+          (r2?.lastMessage?.time ?? 0) - (r1?.lastMessage?.time ?? 0)
       )
       .map(([id, room]) => ({
         id,
         members: room?.members,
         unread: 0,
-        lastMessage: room?.messages?.lastMessage
+        lastMessage: room?.lastMessage
       }));
   }
 
@@ -54,7 +53,7 @@ export default class Rooms extends VuexModule {
   private addMessages(messages: ILoadMessage) {
     const room = this._rooms[messages.room];
 
-    room?.messages.add(messages.messages);
+    room?.addMessages(messages.messages);
   }
 
   @Action
