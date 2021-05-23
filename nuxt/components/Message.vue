@@ -52,7 +52,7 @@ export default class Message extends Vue {
   justify-content: right;
   max-width: 60%;
 
-  margin-top: 1.5rem;
+  margin-top: $messageMarginTop;
 
   &__sender {
     &__image {

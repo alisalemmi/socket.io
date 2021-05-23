@@ -6,7 +6,10 @@
     @select-room='Rooms.changeRoom($event)'
   )
 
-  message-list.chat__messages(:currentRoom='Rooms.currentRoom')
+  message-list.chat__messages(
+    :messages='Rooms.messages',
+    :currentRoom='Rooms.currentRoom'
+  )
 
   send.chat__send(
     :show='Rooms.currentRoom',
