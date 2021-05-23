@@ -6,8 +6,19 @@ export interface IMessage {
   text: string;
   time: number;
   edited: boolean;
-  seen: boolean;
 }
+
+/**
+ * messages that are sent in the same day.
+ */
+type MessagesOfDay = IMessage[];
+
+export type ChunkMessagesGetter = MessagesOfDay[];
+
+/**
+ * first item is **readed** messages and second is **unreaded** messages.
+ */
+export type MessagesGetter = [ChunkMessagesGetter[], ChunkMessagesGetter[]];
 
 export interface IUnparsedMessage {
   id: string;

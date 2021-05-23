@@ -3,7 +3,8 @@ import Vue from 'vue';
 import type {
   IUnparsedRoomMember,
   IUnparsedMessage,
-  MembersGetter
+  MembersGetter,
+  MessagesGetter
 } from '@/@types';
 
 import { Members } from '@/store';
@@ -30,6 +31,60 @@ export class Room extends MessageList {
     return Object.keys(this.membersLastSeen)
       .filter(memberId => memberId !== Members.me)
       .map(memberId => Members.getMember(memberId));
+  }
+
+  get messages(): MessagesGetter {
+    // 1. get messages
+    const chunks = this.chunks.map(chunk => chunk.messages);
+
+    // 2. find last readed messages
+    let chunkIndex = -1;
+    let dayIndex = -1;
+    let messageIndex = -1;
+
+    for (let i = chunks.length - 1; i >= 0; i--) {
+      if (chunks[i][0][0].time > this.lastSeen) continue;
+
+      for (let j = chunks[i].length - 1; j >= 0; j--) {
+        if (chunks[i][j][0].time > this.lastSeen) continue;
+
+        for (let k = chunks[i][j].length - 1; k >= 0; k--) {
+          if (chunks[i][j][k].time <= this.lastSeen) {
+            chunkIndex = i;
+            dayIndex = j;
+            messageIndex = k;
+            break;
+          }
+        }
+
+        if (messageIndex >= 0) break;
+      }
+
+      if (messageIndex >= 0) break;
+    }
+
+    // 3. split messages to read and unread
+
+    // no readed messages
+    if (chunkIndex < 0) return [[], chunks];
+
+    const firstUnreadMessages = chunks[chunkIndex][dayIndex].splice(
+      messageIndex + 1
+    );
+    const firstUnreadDays = chunks[chunkIndex].splice(dayIndex + 1);
+    const otherChunks = chunks.splice(chunkIndex + 1);
+
+    const firstUnreadChunk =
+      firstUnreadMessages.length || firstUnreadDays.length
+        ? [firstUnreadMessages].concat(firstUnreadDays)
+        : [];
+
+    const unreadMessages =
+      firstUnreadChunk.length || otherChunks.length
+        ? [firstUnreadChunk].concat(otherChunks)
+        : [];
+
+    return [chunks, unreadMessages];
   }
 
   get lastSeen() {

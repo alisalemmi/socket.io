@@ -1,7 +1,12 @@
 import Vue from 'vue';
 import { VuexModule, Module, Mutation, Action } from 'vuex-module-decorators';
 
-import type { IUnparsedRoom, ILoadMessage, ILoadMessageArg } from '@/@types';
+import type {
+  IUnparsedRoom,
+  ILoadMessage,
+  ILoadMessageArg,
+  MessagesGetter
+} from '@/@types';
 
 import { $socket } from '@/util/initialize/socket.io';
 import { Room } from './room';
@@ -23,6 +28,11 @@ export default class Rooms extends VuexModule {
         unread: 0,
         lastMessage: room?.lastMessage
       }));
+  }
+
+  get messages(): MessagesGetter {
+    if (!this.currentRoom) return [[], []];
+    return this._rooms[this.currentRoom]?.messages ?? [[], []];
   }
 
   @Mutation

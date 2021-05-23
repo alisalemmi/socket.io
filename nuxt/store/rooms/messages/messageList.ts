@@ -1,10 +1,10 @@
-import type { IUnparsedMessage } from '@/@types';
+import type { IUnparsedMessage, MessagesGetter } from '@/@types';
 
 import { Message } from './message';
 import { Chunk } from './chunk';
 
-export class MessageList {
-  private chunks: Chunk[] = [];
+export abstract class MessageList {
+  protected chunks: Chunk[] = [];
 
   /**
    * @param from `from` of new chunk
@@ -51,6 +51,8 @@ export class MessageList {
   get lastMessage() {
     return this.chunks[this.chunks.length - 1]?.lastMessage;
   }
+
+  abstract get messages(): MessagesGetter;
 
   addMessages(messages: IUnparsedMessage[]): void;
   addMessages(message: IUnparsedMessage): void;
