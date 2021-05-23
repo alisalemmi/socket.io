@@ -4,7 +4,7 @@ li.room(:class='{ "room--select": selected }', @click='$emit("click")')
 
   h3.room__name {{ name }}
   p.room__last-message {{ lastMessage && lastMessage.text }}
-  span.room__date {{ lastMessage && lastMessage.time | getRelativeDate }}
+  span.room__date {{ lastMessage && lastMessage.time | getRelativeDate(true) }}
   .room__unread(v-show='unread') {{ unread }}
 </template>
 
