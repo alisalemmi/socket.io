@@ -15,7 +15,9 @@ section.message-list
           :key='message.id',
           :sender='message.sender',
           :text='message.text',
-          :time='message.time'
+          :time='message.time',
+          :edited='message.edited',
+          :flags='message.flags'
         )
 
     h1#message-list__unread(v-if='messages[1].length') پیام های خوانده نشده
@@ -32,7 +34,9 @@ section.message-list
           :key='message.id',
           :sender='message.sender',
           :text='message.text',
-          :time='message.time'
+          :time='message.time',
+          :edited='message.edited',
+          :flags='message.flags'
         )
 
       loading

@@ -28,12 +28,17 @@ export class Chunk {
       );
 
       chunkMessages.push(
-        msgs.map(msg => ({
+        msgs.map((msg, i) => ({
           id: msg.id,
           sender: Members.getMember(msg.sender),
           text: msg.text,
           time: msg.time,
-          edited: msg.edited
+          edited: msg.edited,
+          flags: {
+            isFirst: i === 0 || msg.sender !== msgs[i - 1].sender,
+            isLast: i === msgs.length - 1 || msg.sender !== msgs[i + 1].sender,
+            isSend: msg.sender === Members.me
+          }
         }))
       );
 

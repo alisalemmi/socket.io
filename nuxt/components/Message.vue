@@ -1,24 +1,25 @@
 <template lang="pug">
 include ../assets/pug/icon
 
-aside.message
-  avatar.message__sender__image(:member='sender')
-
-  span.message__sender__name {{ sender.name }}
+aside.message(
+  :class='{ "message--send": flags.isSend, "message--first": flags.isFirst, "message--last": flags.isLast }'
+)
+  avatar.message__sender__image(v-if='flags.isFirst', :member='sender')
+  span.message__sender__name(v-if='flags.isFirst') {{ sender.name }}
 
   .message__body
     p.message__text {{ text }}
 
     .message__body__footer
       +icon('double-tick-indicator').message__icon
-      +icon('edit').message__icon
+      +icon('edit').message__icon(v-if='edited')
       .message__time {{ time | getTime }}
 </template>
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
 
-import type { IMember } from '@/@types';
+import type { IMember, IMessageFlags } from '@/@types';
 
 import { getTime } from '@/util/time/getTime';
 
@@ -29,13 +30,19 @@ import { getTime } from '@/util/time/getTime';
 })
 export default class Message extends Vue {
   @Prop()
+  readonly sender!: IMember;
+
+  @Prop()
   readonly text!: string;
 
   @Prop()
   readonly time!: number;
 
   @Prop()
-  readonly sender!: IMember;
+  readonly edited!: boolean;
+
+  @Prop()
+  readonly flags!: IMessageFlags;
 }
 </script>
 
@@ -43,16 +50,14 @@ export default class Message extends Vue {
 .message {
   display: grid;
 
-  grid-template-columns: min-content auto;
+  grid-template-columns: 44px auto;
   grid-template-areas:
     'sender-image sender-name'
     'sender-image body';
 
   grid-gap: 0.5rem 1.5rem;
-  justify-content: right;
+  align-self: flex-start;
   max-width: 60%;
-
-  margin-top: $messageMarginTop;
 
   &__sender {
     &__image {
@@ -73,8 +78,8 @@ export default class Message extends Vue {
     grid-area: body;
     padding: 1rem 1rem 0.25rem 1rem;
 
-    border-radius: 1rem 0 1rem 1rem;
-    background-color: $color-white;
+    border-radius: 1rem 0 0 1rem;
+    background-color: $color-white-3;
     box-shadow: $shadow-4;
 
     &__footer {
@@ -103,6 +108,55 @@ export default class Message extends Vue {
     padding-right: 3rem;
 
     @include no-drag();
+  }
+
+  &--send {
+    grid-template-columns: auto 44px;
+    grid-template-areas:
+      'sender-name sender-image'
+      'body sender-image';
+
+    align-self: flex-end;
+
+    .message {
+      &__body {
+        border-radius: 0 1rem 1rem 0;
+      }
+
+      &__sender {
+        &__name {
+          text-align: left;
+        }
+      }
+    }
+  }
+
+  &--first {
+    margin-top: $messageMarginTop;
+
+    .message {
+      &__body {
+        border-top-right-radius: 0;
+      }
+    }
+
+    &.message--send {
+      .message {
+        &__body {
+          border-top-right-radius: 1rem;
+          border-top-left-radius: 0;
+        }
+      }
+    }
+  }
+
+  &--last {
+    .message {
+      &__body {
+        border-bottom-right-radius: 1rem;
+        border-bottom-left-radius: 1rem;
+      }
+    }
   }
 }
 </style>

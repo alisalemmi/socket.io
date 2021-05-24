@@ -1,4 +1,10 @@
-import { IMember } from './member';
+import type { IMember } from './member';
+
+export interface IMessageFlags {
+  isFirst: boolean;
+  isLast: boolean;
+  isSend: boolean;
+}
 
 export interface IMessage {
   id: string;
@@ -6,6 +12,7 @@ export interface IMessage {
   text: string;
   time: number;
   edited: boolean;
+  flags: IMessageFlags;
 }
 
 /**
