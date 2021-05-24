@@ -18,7 +18,7 @@ section.message-list
           :time='message.time'
         )
 
-    h1#message-list__unread پیام های خوانده نشده
+    h1#message-list__unread(v-if='messages[1].length') پیام های خوانده نشده
 
     li(v-for='(chunk, i) in messages[1]', :key='`unreaded-chunk-${i}`')
       .message-list__day(
