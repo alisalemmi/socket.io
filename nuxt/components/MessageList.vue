@@ -23,6 +23,8 @@ section.message-list
     h1#message-list__unread(v-if='messages[1].length') پیام های خوانده نشده
 
     li(v-for='(chunk, i) in messages[1]', :key='`unreaded-chunk-${i}`')
+      loading(v-if='i !== 0')
+
       .message-list__day(
         v-for='(day, j) in chunk',
         :key='`unreaded-chunk-${i}-day-${j}`'
@@ -38,8 +40,6 @@ section.message-list
           :edited='message.edited',
           :flags='message.flags'
         )
-
-      loading
 
   transition(v-else, name='message-list__select-room')
     span.message-list__select-room برای شروع یک گفت و گو را انتخاب کنید
