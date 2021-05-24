@@ -4,8 +4,11 @@ include ../assets/pug/icon
 aside.message(
   :class='{ "message--send": flags.isSend, "message--first": flags.isFirst, "message--last": flags.isLast }'
 )
-  avatar.message__sender__image(v-if='flags.isFirst', :member='sender')
-  span.message__sender__name(v-if='flags.isFirst') {{ sender.name }}
+  avatar.message__sender__image(
+    v-if='flags.isFirst && !flags.isSend',
+    :member='sender'
+  )
+  span.message__sender__name(v-if='flags.isFirst && !flags.isSend') {{ sender.name }}
 
   .message__body
     p.message__text {{ text }}
@@ -55,7 +58,7 @@ export default class Message extends Vue {
     'sender-image sender-name'
     'sender-image body';
 
-  grid-gap: 0.5rem 1.5rem;
+  grid-gap: 0 1.5rem;
   align-self: flex-start;
   max-width: 60%;
 
@@ -76,6 +79,7 @@ export default class Message extends Vue {
 
   &__body {
     grid-area: body;
+    margin-top: 0.5rem;
     padding: 1rem 1rem 0.25rem 1rem;
 
     border-radius: 1rem 0 0 1rem;
@@ -111,11 +115,7 @@ export default class Message extends Vue {
   }
 
   &--send {
-    grid-template-columns: auto 44px;
-    grid-template-areas:
-      'sender-name sender-image'
-      'body sender-image';
-
+    display: block;
     align-self: flex-end;
 
     .message {
