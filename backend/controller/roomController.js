@@ -23,6 +23,8 @@ exports.createRoom = async (req, res, next) => {
  * @returns {{rooms: [], members: []}}
  */
 exports.getRooms = async userId => {
+  if (!userId) return { rooms: [], members: [] };
+
   const rooms = await Room.aggregate()
     .match({ 'members.id': userId })
     .facet({
