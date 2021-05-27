@@ -4,7 +4,7 @@ import { io } from 'socket.io-client';
 import VueSocketIOExt from 'vue-socket.io-extended';
 import { initSocket } from '@/util/initialize/socket.io';
 
-const socket = io();
+const socket = io({ autoConnect: false });
 
 const transformName = (s: string) => `${s[0].toUpperCase()}${s.slice(1)}`;
 

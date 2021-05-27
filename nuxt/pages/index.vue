@@ -36,6 +36,10 @@ export default class Chat extends Vue {
   selectedMessage = {};
   sendState = sendState.Send;
   messageText = '';
+
+  created() {
+    this.$socket.client.open();
+  }
 }
 </script>
 
