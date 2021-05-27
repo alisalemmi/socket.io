@@ -23,7 +23,7 @@ type MessagesOfDay = IMessage[];
 export type ChunkMessagesGetter = MessagesOfDay[];
 
 /**
- * first item is **readed** messages and second is **unreaded** messages.
+ * first item is **read** messages and second is **unread** messages.
  */
 export type MessagesGetter = [ChunkMessagesGetter[], ChunkMessagesGetter[]];
 

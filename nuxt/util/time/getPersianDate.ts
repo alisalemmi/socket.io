@@ -3,7 +3,7 @@ export const getPersianDate = (date: number | string | Date) => {
 
   if (!date || isNaN(d.getTime())) throw new Error('invalid Date');
 
-  const [day, mounth, year] = d
+  const [day, month, year] = d
     .toLocaleDateString('fa', {
       year: 'numeric',
       month: 'long',
@@ -16,7 +16,7 @@ export const getPersianDate = (date: number | string | Date) => {
 
   return {
     day: +day,
-    month: mounth,
+    month,
     year: +year
   };
 };

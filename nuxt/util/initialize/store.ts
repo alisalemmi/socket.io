@@ -10,10 +10,10 @@ let Members: MembersClass;
 let Rooms: RoomsClass;
 let TypingUsers: TypingUsersClass;
 
-function initialiseStores(store: Store<any>): void {
+function initializeStores(store: Store<any>): void {
   Members = getModule(MembersClass, store);
   Rooms = getModule(RoomsClass, store);
   TypingUsers = getModule(TypingUsersClass, store);
 }
 
-export { initialiseStores, Members, Rooms, TypingUsers };
+export { initializeStores, Members, Rooms, TypingUsers };

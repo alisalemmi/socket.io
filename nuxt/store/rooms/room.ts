@@ -37,7 +37,7 @@ export class Room extends MessageList {
     // 1. get messages
     const chunks = this.chunks.map(chunk => chunk.messages);
 
-    // 2. find last readed messages
+    // 2. find last read messages
     let chunkIndex = -1;
     let dayIndex = -1;
     let messageIndex = -1;
@@ -65,7 +65,7 @@ export class Room extends MessageList {
 
     // 3. split messages to read and unread
 
-    // no readed messages
+    // no read messages
     if (chunkIndex < 0) return [[], chunks];
 
     const firstUnreadMessages = chunks[chunkIndex][dayIndex].splice(
