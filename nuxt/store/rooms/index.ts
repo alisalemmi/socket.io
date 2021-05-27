@@ -5,7 +5,8 @@ import type {
   IUnparsedRoom,
   ILoadMessage,
   ILoadMessageArg,
-  MessagesGetter
+  MessagesGetter,
+  RoomsGetter
 } from '@/@types';
 
 import { $socket } from '@/util/initialize/socket.io';
@@ -16,7 +17,7 @@ export default class Rooms extends VuexModule {
   currentRoom: string | null = null;
   private _rooms: { readonly [id: string]: Room | undefined } = {};
 
-  get rooms() {
+  get rooms(): RoomsGetter {
     return Object.entries(this._rooms)
       .sort(
         ([_1, r1], [_2, r2]) =>
@@ -25,8 +26,8 @@ export default class Rooms extends VuexModule {
       .map(([id, room]) => ({
         id,
         members: room?.members,
-        unread: 0,
-        lastMessage: room?.lastMessage
+        lastMessage: room?.lastMessage,
+        unread: 0
       }));
   }
 

@@ -13,11 +13,12 @@ ul.sidebar
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
+import type { RoomsGetter } from '@/@types';
 
 @Component
 export default class SideBar extends Vue {
   @Prop()
-  readonly rooms!: {}; // FIXME: correct type: rooms
+  readonly rooms!: RoomsGetter;
 
   @Prop()
   readonly currentRoom!: string | null;

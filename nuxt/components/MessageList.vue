@@ -48,7 +48,7 @@ section.message-list
 <script lang="ts">
 import { Component, Prop, Ref, Vue } from 'vue-property-decorator';
 
-import type { IMessage } from '@/@types';
+import type { MessagesGetter } from '@/@types';
 
 import { getRelativeDate } from '~/util/time/getRelativeDate';
 
@@ -62,7 +62,7 @@ export default class MessageList extends Vue {
   readonly currentRoom!: string | null;
 
   @Prop()
-  readonly messages!: IMessage[][];
+  readonly messages!: MessagesGetter;
 
   @Ref()
   readonly list!: HTMLUListElement;
