@@ -53,7 +53,7 @@ export default class Rooms extends VuexModule {
     if (roomId in this._rooms) {
       this.setCurrentRoom(roomId);
 
-      this.loadMessage({
+      return this.loadMessage({
         from: this._rooms[roomId]?.lastSeen || 0,
         dir: 'both'
       });
@@ -68,19 +68,26 @@ export default class Rooms extends VuexModule {
   }
 
   @Action
-  loadMessage({ from, dir }: ILoadMessageArg) {
+  loadMessage({ from, dir }: ILoadMessageArg): Promise<void> {
     if (dir === 'both') {
-      this.loadMessage({ from, dir: 'after' });
-      this.loadMessage({ from, dir: 'before' });
+      const p1: Promise<void> = this.loadMessage({ from, dir: 'after' });
+      const p2: Promise<void> = this.loadMessage({ from, dir: 'before' });
+
+      return Promise.all([p1, p2]).then(() => undefined);
     } else
-      $socket.emit(
-        'getHistory',
-        {
-          room: this.currentRoom,
-          date: from,
-          direction: dir === 'before'
-        },
-        this.addMessages
+      return new Promise(resolve =>
+        $socket.emit(
+          'getHistory',
+          {
+            room: this.currentRoom,
+            date: from,
+            direction: dir === 'before'
+          },
+          (messages: ILoadMessage) => {
+            this.addMessages(messages);
+            resolve();
+          }
+        )
       );
   }
 }
