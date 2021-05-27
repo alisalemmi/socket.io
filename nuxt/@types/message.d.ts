@@ -41,6 +41,7 @@ export interface ILoadMessage {
 }
 
 export interface ILoadMessageArg {
+  roomId: string;
   from: number;
   dir: 'after' | 'before' | 'both';
 }

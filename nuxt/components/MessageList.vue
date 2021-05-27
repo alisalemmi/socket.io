@@ -17,10 +17,11 @@ section.message-list
           :text='message.text',
           :time='message.time',
           :edited='message.edited',
-          :flags='message.flags'
+          :flags='message.flags',
+          @hook:mounted='loading = false'
         )
 
-    h1#message-list__unread(v-if='messages[1].length') پیام های خوانده نشده
+    h1#message-list__unread(ref='unreadLabel', v-if='messages[1].length') پیام های خوانده نشده
 
     li(v-for='(chunk, i) in messages[1]', :key='`unreaded-chunk-${i}`')
       loading(v-if='i !== 0')
@@ -38,7 +39,8 @@ section.message-list
           :text='message.text',
           :time='message.time',
           :edited='message.edited',
-          :flags='message.flags'
+          :flags='message.flags',
+          @hook:mounted='loading = false'
         )
 
   transition(v-else, name='message-list__select-room')
@@ -46,11 +48,11 @@ section.message-list
 </template>
 
 <script lang="ts">
-import { Component, Prop, Ref, Vue } from 'vue-property-decorator';
+import { Component, Prop, Ref, Watch, Vue } from 'vue-property-decorator';
 
 import type { MessagesGetter } from '@/@types';
 
-import { getRelativeDate } from '~/util/time/getRelativeDate';
+import { getRelativeDate } from '@/util/time/getRelativeDate';
 
 @Component({
   filters: {
@@ -58,6 +60,8 @@ import { getRelativeDate } from '~/util/time/getRelativeDate';
   }
 })
 export default class MessageList extends Vue {
+  private loading = false;
+
   @Prop()
   readonly currentRoom!: string | null;
 
@@ -67,10 +71,33 @@ export default class MessageList extends Vue {
   @Ref()
   readonly list!: HTMLUListElement;
 
+  @Ref()
+  readonly unreadLabel!: HTMLHeadElement;
+
   loadingObserver: IntersectionObserver | null = null;
 
   loadMoreMessages(e: IntersectionObserverEntry[]) {
     console.log(e);
+  }
+
+  scrollToUnreadLabel() {
+    if (this.unreadLabel) this.unreadLabel.scrollIntoView({ block: 'center' });
+    else this.$el.scrollTo({ top: this.$el.scrollHeight });
+  }
+
+  @Watch('currentRoom')
+  onRoomChange() {
+    this.loading = true;
+  }
+
+  @Watch('loading')
+  onMessageLoade(to: boolean, from: boolean) {
+    if (!to && from) {
+      this.$nextTick(() => {
+        this.scrollToUnreadLabel();
+        this.loading = false;
+      });
+    }
   }
 
   mounted() {

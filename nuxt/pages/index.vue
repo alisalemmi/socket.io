@@ -3,7 +3,7 @@
   side-bar.chat__sidebar(
     :rooms='Rooms.rooms',
     :currentRoom='Rooms.currentRoom',
-    @select-room='Rooms.changeRoom($event)'
+    @select-room='Rooms.changeRoom'
   )
 
   message-list.chat__messages(
@@ -22,8 +22,7 @@
 </template>
 
 <script lang="tsx">
-import Vue from 'vue';
-import { Component } from 'vue-property-decorator';
+import { Component, Vue } from 'vue-property-decorator';
 
 import { TypingUsers, Rooms } from '@/store';
 import { sendState } from '@/components/Send.vue';
