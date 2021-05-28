@@ -1,0 +1,40 @@
+@function str-last-index($string, $needle) {
+  $index: str-index($string, $needle);
+  $result: $index;
+
+  @if $index {
+    @for $i from $index + str-length($needle) through str-length($string) {
+      @if str-slice($string, $i, $i + str-length($needle) - 1) == $needle {
+        $result: $i;
+      }
+    }
+  }
+
+  @return $result;
+}
+
+@function remove-last-part($selector) {
+  $seperators: ':', '--', '__', ' ', '.', '#', '+', '~', '>';
+
+  $pos: 1;
+
+  @each $seperator in $seperators {
+    $i: str-last-index($selector, $seperator);
+
+    @if $i {
+      $pos: max($pos, $i);
+    }
+  }
+
+  @return str-slice($selector, 0, $pos - 1);
+}
+
+@function parent($selector, $n: 1) {
+  $s: $selector + '';
+
+  @for $i from 0 to $n {
+    $s: remove-last-part($s);
+  }
+
+  @return unquote($s);
+}

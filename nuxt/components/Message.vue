@@ -51,8 +51,6 @@ export default class Message extends Vue {
 
 <style lang="scss">
 .message {
-  $p: &;
-
   display: grid;
 
   grid-template-columns: 44px auto;
@@ -120,7 +118,7 @@ export default class Message extends Vue {
     display: block;
     align-self: flex-end;
 
-    #{$p}__body {
+    #{parent(&)}__body {
       border-radius: 0 1rem 1rem 0;
     }
   }
@@ -128,12 +126,12 @@ export default class Message extends Vue {
   &--first {
     margin-top: $messageMarginTop;
 
-    #{$p}__body {
+    #{parent(&)}__body {
       border-top-right-radius: 0;
     }
 
-    &#{$p}--send {
-      #{$p}__body {
+    &#{parent(&)}--send {
+      #{parent(&, 3)}__body {
         border-top-right-radius: 1rem;
         border-top-left-radius: 0;
       }
@@ -141,7 +139,7 @@ export default class Message extends Vue {
   }
 
   &--last {
-    #{$p}__body {
+    #{parent(&)}__body {
       border-bottom-right-radius: 1rem;
       border-bottom-left-radius: 1rem;
     }
