@@ -1,47 +1,28 @@
 <template lang="pug">
 section.message-list
   ul.message-list__list(v-if='currentRoom', ref='list')
-    li(v-for='(chunk, i) in messages[0]', :key='`readed-chunk-${i}`')
-      loading
+    template(v-for='(chunks, i) in messages')
+      template(v-for='(days, j) in chunks')
+        loading(v-if='!i || j')
 
-      .message-list__day(
-        v-for='(day, j) in chunk',
-        :key='`readed-chunk-${i}-day-${j}`'
-      )
-        span.message-list__date {{ day[0].time | getRelativeDate(false) }}
+        template(v-for='(msgs, k) in days')
+          span.message-list__date(v-if='!i || j || k') {{ msgs[0].time | getRelativeDate(false) }}
 
-        message(
-          v-for='message in day',
-          :key='message.id',
-          :sender='message.sender',
-          :text='message.text',
-          :time='message.time',
-          :edited='message.edited',
-          :flags='message.flags',
-          @hook:mounted='loading = false'
-        )
+          message(
+            v-for='message in msgs',
+            :key='message.id',
+            :sender='message.sender',
+            :text='message.text',
+            :time='message.time',
+            :edited='message.edited',
+            :flags='message.flags',
+            @hook:mounted='loading = false'
+          )
 
-    h1#message-list__unread(ref='unreadLabel', v-if='messages[1].length') پیام های خوانده نشده
-
-    li(v-for='(chunk, i) in messages[1]', :key='`unreaded-chunk-${i}`')
-      loading(v-if='i !== 0')
-
-      .message-list__day(
-        v-for='(day, j) in chunk',
-        :key='`unreaded-chunk-${i}-day-${j}`'
-      )
-        span.message-list__date(v-if='i !== 0 || j !== 0') {{ day[0].time | getRelativeDate(false) }}
-
-        message(
-          v-for='message in day',
-          :key='message.id',
-          :sender='message.sender',
-          :text='message.text',
-          :time='message.time',
-          :edited='message.edited',
-          :flags='message.flags',
-          @hook:mounted='loading = false'
-        )
+      h1#message-list__unread(
+        ref='unreadLabel',
+        v-if='messages[i + 1] && messages[i + 1].length'
+      ) پیام های خوانده نشده
 
   transition(v-else, name='message-list__select-room')
     span.message-list__select-room برای شروع یک گفت و گو را انتخاب کنید
@@ -73,7 +54,7 @@ export default class MessageList extends Vue {
   readonly list!: HTMLUListElement;
 
   @Ref()
-  readonly unreadLabel!: HTMLHeadElement;
+  readonly unreadLabel!: HTMLHeadElement[] | null;
 
   loadingObserver: IntersectionObserver | null = null;
 
@@ -82,7 +63,8 @@ export default class MessageList extends Vue {
   }
 
   scrollToUnreadLabel() {
-    if (this.unreadLabel) this.unreadLabel.scrollIntoView({ block: 'center' });
+    if (this.unreadLabel?.[0])
+      this.unreadLabel[0].scrollIntoView({ block: 'center' });
     else this.$el.scrollTo({ top: this.$el.scrollHeight });
   }
 
@@ -135,14 +117,12 @@ $scroll-padding: 0.5rem;
   @include scrollbar($width: $scroll-width, $padding: $scroll-padding);
 
   &__list {
+    display: flex;
+    flex-direction: column;
+
     padding: 1rem 3.5rem 1rem 3.5rem - $scroll-width - 2 * $scroll-padding;
 
     list-style: none;
-  }
-
-  &__day {
-    display: flex;
-    flex-direction: column;
   }
 
   &__date {
@@ -157,10 +137,10 @@ $scroll-padding: 0.5rem;
     font-size: 1.2rem;
     text-align: center;
     border-radius: 10rem;
-    background-color: $color-white-3;
+    background-color: $color-white-4;
     z-index: 100;
 
-    box-shadow: $shadow-4;
+    @include no-drag();
   }
 
   &__select-room {
@@ -195,6 +175,8 @@ $scroll-padding: 0.5rem;
     color: $color-primary;
     font-size: 1.3rem;
     font-weight: 700;
+
+    @include no-drag();
 
     &::before,
     &::after {
