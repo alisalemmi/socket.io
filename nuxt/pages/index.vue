@@ -8,7 +8,8 @@
 
   message-list.chat__messages(
     :messages='Rooms.messages',
-    :currentRoom='Rooms.currentRoom'
+    :currentRoom='Rooms.currentRoom',
+    @loadMoreMessages='loadMessage'
   )
 
   send.chat__send(
@@ -38,6 +39,10 @@ export default class Chat extends Vue {
 
   created() {
     this.$socket.client.open();
+  }
+
+  loadMessage(from: number, dir: 'before' | 'after') {
+    this.Rooms.loadMessage({ from, dir });
   }
 }
 </script>

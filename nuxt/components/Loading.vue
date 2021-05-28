@@ -3,10 +3,13 @@
 </template>
 
 <script lang="ts">
-import { Component, Ref, Vue } from 'vue-property-decorator';
+import { Component, Prop, Ref, Vue } from 'vue-property-decorator';
 
 @Component
 export default class Loading extends Vue {
+  @Prop()
+  readonly time!: number;
+
   @Ref()
   readonly loading!: HTMLDivElement;
 

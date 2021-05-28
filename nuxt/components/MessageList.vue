@@ -3,7 +3,7 @@ section.message-list
   ul.message-list__list(v-if='currentRoom', ref='list')
     template(v-for='(chunks, i) in messages')
       template(v-for='(days, j) in chunks')
-        loading(v-if='!i || j')
+        loading(v-if='!i || j', :time='getLoadingTime(i, j)')
 
         template(v-for='(msgs, k) in days')
           span.message-list__date(v-if='!i || j || k') {{ msgs[0].time | getRelativeDate(false) }}
@@ -58,8 +58,30 @@ export default class MessageList extends Vue {
 
   loadingObserver: IntersectionObserver | null = null;
 
-  loadMoreMessages(e: IntersectionObserverEntry[]) {
-    console.log(e);
+  getvisibleLoading() {
+    const h = (this.$el as HTMLElement).offsetHeight;
+
+    return Array.from(document.querySelectorAll('.loading')).filter(loading => {
+      const y = loading.getBoundingClientRect().y;
+      return y > 0 && y < h;
+    });
+  }
+
+  getLoadingTime(i: number, j: number) {
+    if (i) {
+      const chunk = this.messages[i][j - 1];
+      const day = chunk[chunk.length - 1];
+
+      return day[day.length - 1].time;
+    } else {
+      return -this.messages[i][j][0][0].time;
+    }
+  }
+
+  loadMoreMessages(e: Element) {
+    const t = (e as Element & { __vue__: any }).__vue__.time;
+
+    this.$emit('loadMoreMessages', Math.abs(t), t < 0 ? 'before' : 'after');
   }
 
   scrollToUnreadLabel() {
@@ -86,9 +108,12 @@ export default class MessageList extends Vue {
         scale: 1.5
       });
     } else {
-      // scroll to unread label
       this.$nextTick(() => {
+        // scroll to unread label
         this.scrollToUnreadLabel();
+
+        // find visible loading
+        this.getvisibleLoading().forEach(e => this.loadMoreMessages(e));
 
         // hide loading
         this.loadingComponent?.close();
@@ -98,11 +123,20 @@ export default class MessageList extends Vue {
   }
 
   mounted() {
-    this.loadingObserver = new IntersectionObserver(this.loadMoreMessages, {
-      root: this.list,
-      threshold: 0.01,
-      rootMargin: '200px'
-    });
+    this.loadingObserver = new IntersectionObserver(
+      entities => {
+        if (!this.loading) {
+          entities.forEach(entity => {
+            if (entity.isIntersecting) this.loadMoreMessages(entity.target);
+          });
+        }
+      },
+      {
+        root: this.list,
+        threshold: 0.01,
+        rootMargin: '200px'
+      }
+    );
   }
 }
 </script>

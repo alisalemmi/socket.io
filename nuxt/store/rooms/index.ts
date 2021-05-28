@@ -80,7 +80,7 @@ export default class Rooms extends VuexModule {
         $socket.emit(
           'getHistory',
           {
-            room: roomId,
+            room: roomId || this.currentRoom,
             date: from,
             direction: dir === 'before'
           },
