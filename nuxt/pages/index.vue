@@ -119,8 +119,15 @@ export default class Chat extends Vue {
     z-index: 10;
   }
 
+  $p: &;
   &__messages {
     grid-area: messages;
+
+    @at-root #{$p}__body > .vs-loading {
+      position: static;
+      margin: 0 1rem;
+      grid-area: messages;
+    }
   }
 
   &__send {

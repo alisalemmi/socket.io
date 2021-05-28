@@ -61,6 +61,7 @@ import { getRelativeDate } from '@/util/time/getRelativeDate';
 })
 export default class MessageList extends Vue {
   private loading = false;
+  private loadingComponent?: { close: () => {} } = undefined;
 
   @Prop()
   readonly currentRoom!: string | null;
@@ -92,10 +93,24 @@ export default class MessageList extends Vue {
 
   @Watch('loading')
   onMessageLoade(to: boolean, from: boolean) {
-    if (!to && from) {
+    if (to === from) return;
+
+    if (to) {
+      // show loading
+      this.loadingComponent ||= this.$vs.loading({
+        target: this.$el.parentElement,
+        color: '#888',
+        opacity: 0.9,
+        scale: 1.5
+      });
+    } else {
+      // scroll to unread label
       this.$nextTick(() => {
         this.scrollToUnreadLabel();
-        this.loading = false;
+
+        // hide loading
+        this.loadingComponent?.close();
+        this.loadingComponent = undefined;
       });
     }
   }
