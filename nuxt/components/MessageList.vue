@@ -38,6 +38,23 @@ import { getRelativeDate } from '@/util/time/getRelativeDate';
 @Component({
   filters: {
     getRelativeDate
+  },
+  sockets: {
+    message() {
+      if (
+        this.$el.scrollHeight -
+          (this.$el.scrollTop + (this.$el as HTMLElement).offsetHeight) <
+        150
+      )
+        setTimeout(
+          () =>
+            this.$el.scrollTo({
+              top: this.$el.scrollHeight,
+              behavior: 'smooth'
+            }),
+          100
+        );
+    }
   }
 })
 export default class MessageList extends Vue {

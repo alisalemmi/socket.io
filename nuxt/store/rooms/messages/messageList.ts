@@ -55,8 +55,11 @@ export abstract class MessageList {
   abstract get messages(): MessagesGetter;
 
   addMessages(messages: IUnparsedMessage[]): void;
-  addMessages(message: IUnparsedMessage): void;
-  addMessages(message: IUnparsedMessage | IUnparsedMessage[]) {
+  addMessages(message: IUnparsedMessage, addToLastChunk?: boolean): void;
+  addMessages(
+    message: IUnparsedMessage | IUnparsedMessage[],
+    addToLastChunk = false
+  ) {
     // parse argument
     const messages = (!Array.isArray(message) ? [message] : message)
       .map(
@@ -82,8 +85,11 @@ export abstract class MessageList {
       this.chunks[i].add(messages);
       this.merge(i);
     }
-    // create new chunk
-    else {
+    // insert to last chunk
+    else if (addToLastChunk) {
+      this.chunks[this.chunks.length - 1].add(messages);
+    } else {
+      // create new chunk
       const chunk = new Chunk(messages);
       this.chunks.splice(this.getChunkPosition(chunk.from), 0, chunk);
     }

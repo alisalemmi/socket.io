@@ -19,12 +19,15 @@
     :state='sendState',
     :selectedMessage='selectedMessage',
     :typingUsers='TypingUsers.users',
-    @type='TypingUsers.type'
+    @type='TypingUsers.type',
+    @submit='submit'
   )
 </template>
 
 <script lang="tsx">
 import { Component, Vue } from 'vue-property-decorator';
+
+import { IMessage } from '@/@types';
 
 import { TypingUsers, Rooms } from '@/store';
 import { sendState } from '@/components/Send.vue';
@@ -34,7 +37,7 @@ export default class Chat extends Vue {
   readonly Rooms = Rooms;
   readonly TypingUsers = TypingUsers;
 
-  selectedMessage = {};
+  selectedMessage: IMessage | null = null;
   sendState = sendState.Send;
   messageText = '';
 
@@ -44,6 +47,11 @@ export default class Chat extends Vue {
 
   loadMessage(from: number, dir: 'before' | 'after') {
     this.Rooms.loadMessage({ from, dir });
+  }
+
+  submit() {
+    Rooms.sendMessage({ messageText: this.messageText });
+    this.messageText = '';
   }
 }
 </script>

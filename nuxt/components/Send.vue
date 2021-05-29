@@ -18,7 +18,7 @@ form.send(:class='{ "send--close": !show }', @submit.prevent)
       +icon('state === "edit" ? "edit" : state === "quote" ? "reply-message" : ""').send__info__icon
       .send__info__state {{ state === "edit" ? "ویرایش" : state === "quote" ? "نقل قول" : "" }}
       .send__info__close(@click='$emit("cancel")')
-      .send__info__text {{ selectedMessage.text }}
+      .send__info__text {{ selectedMessage && selectedMessage.text }}
 
     #send__message.send__message(
       ref='sendInput',
@@ -71,7 +71,7 @@ export default class Send extends Vue {
   readonly state!: sendState;
 
   @Prop()
-  readonly selectedMessage!: IMessage;
+  readonly selectedMessage!: IMessage | null;
 
   @Prop()
   readonly typingUsers!: typingUsersGetter;

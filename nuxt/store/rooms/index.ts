@@ -3,6 +3,7 @@ import { VuexModule, Module, Mutation, Action } from 'vuex-module-decorators';
 
 import type {
   IUnparsedRoom,
+  IUnparsedMessage,
   ILoadMessage,
   ILoadMessageArg,
   MessagesGetter,
@@ -96,5 +97,18 @@ export default class Rooms extends VuexModule {
           }
         )
       );
+  }
+
+  @Mutation
+  onMessage(message: IUnparsedMessage & { room: string }) {
+    this._rooms[message.room]?.addMessages(message, true);
+  }
+
+  @Action
+  sendMessage({ messageText }: { messageText: string }) {
+    const text = messageText.trim();
+
+    if (this.currentRoom && text)
+      $socket.emit('sendMessage', { text, room: this.currentRoom });
   }
 }
