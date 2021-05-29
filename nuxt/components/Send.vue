@@ -14,9 +14,9 @@ form.send(:class='{ "send--close": !show }', @submit.prevent)
     )
 
   .send__message__box
-    .send__info(v-show='state === "edit" || state === "quote"')
-      +icon('state === "edit" ? "edit" : state === "quote" ? "reply-message" : ""').send__info__icon
-      .send__info__state {{ state === "edit" ? "ویرایش" : state === "quote" ? "نقل قول" : "" }}
+    .send__info(v-show='state === sendState.Edit || state === sendState.Qoute')
+      +icon('state === sendState.Edit ? "edit" : state === sendState.Qoute ? "reply-message" : ""').send__info__icon
+      .send__info__state {{ state === sendState.Edit ? "ویرایش" : state === sendState.Qoute ? "نقل قول" : "" }}
       .send__info__close(@click='$emit("cancel")')
       .send__info__text {{ selectedMessage && selectedMessage.text }}
 
@@ -66,6 +66,8 @@ export enum sendState {
 export default class Send extends Vue {
   @VModel()
   readonly messageText!: string;
+
+  sendState = sendState;
 
   @Prop()
   readonly state!: sendState;
@@ -155,13 +157,17 @@ $send-icon-size: 3.5rem;
 
     @include scrollbar();
 
+    &:focus + #{parent(&)}__label {
+      opacity: 0;
+    }
+
     &__box {
       position: relative;
       margin: $margin;
 
       overflow: hidden;
 
-      @include round-box($background: $color-white-5, $box-shadow: $shadow-3);
+      @include round-box($background: $color-white-3, $box-shadow: $shadow-3);
     }
   }
 
@@ -174,10 +180,6 @@ $send-icon-size: 3.5rem;
     transition: opacity 0.3s ease;
 
     cursor: text;
-  }
-
-  &__message:focus + &__label {
-    opacity: 0;
   }
 
   &__is-typing {
@@ -278,7 +280,7 @@ $send-icon-size: 3.5rem;
     padding: 1rem;
 
     border-radius: 1rem;
-    background-color: $color-white-7;
+    background-color: $color-white-6;
 
     &__icon {
       width: $icon-size;
