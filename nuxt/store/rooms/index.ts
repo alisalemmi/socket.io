@@ -36,6 +36,12 @@ export default class Rooms extends VuexModule {
     return this._rooms[this.currentRoom]?.messages ?? [[], []];
   }
 
+  get isEmptyRoom() {
+    return this.currentRoom
+      ? this._rooms[this.currentRoom]?.lastMessage === undefined
+      : true;
+  }
+
   @Mutation
   onRooms(rooms: IUnparsedRoom[]) {
     rooms.forEach(room => {

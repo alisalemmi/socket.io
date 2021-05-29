@@ -1,6 +1,9 @@
 <template lang="pug">
 section.message-list
-  ul.message-list__list(v-if='currentRoom', ref='list')
+  span.message-list__select-room(v-if='!currentRoom') برای شروع یک گفت و گو را انتخاب کنید
+  span.message-list__select-room(v-else-if='isEmptyRoom') برای شروع گفت و گو پیامی ارسال کنید
+
+  ul.message-list__list(v-else, ref='list')
     template(v-for='(chunks, i) in messages')
       template(v-for='(days, j) in chunks')
         loading(v-if='!i || j', :time='getLoadingTime(i, j)')
@@ -23,9 +26,6 @@ section.message-list
         ref='unreadLabel',
         v-if='messages[i + 1] && messages[i + 1].length'
       ) پیام های خوانده نشده
-
-  transition(v-else, name='message-list__select-room')
-    span.message-list__select-room برای شروع یک گفت و گو را انتخاب کنید
 </template>
 
 <script lang="ts">
@@ -49,6 +49,9 @@ export default class MessageList extends Vue {
 
   @Prop()
   readonly messages!: MessagesGetter;
+
+  @Prop()
+  readonly isEmptyRoom!: boolean;
 
   @Ref()
   readonly list!: HTMLUListElement;
@@ -110,13 +113,16 @@ export default class MessageList extends Vue {
     if (to === from) return;
 
     if (to) {
-      // show loading
-      this.loadingComponent ||= this.$vs.loading({
-        target: this.$el.parentElement,
-        color: '#888',
-        opacity: 0.9,
-        scale: 1.5
-      });
+      if (this.isEmptyRoom) this.loading = false;
+      else {
+        // show loading
+        this.loadingComponent ||= this.$vs.loading({
+          target: this.$el.parentElement,
+          color: '#888',
+          opacity: 0.9,
+          scale: 1.5
+        });
+      }
     } else {
       this.$nextTick(() => {
         // scroll to unread label
@@ -198,13 +204,6 @@ $scroll-padding: 0.5rem;
     text-align: center;
     border-radius: 10rem;
     background-color: $color-white-4;
-
-    transition: all $selectRoomDuration ease;
-
-    &-enter,
-    &-leave-to {
-      opacity: 0;
-    }
   }
 }
 

@@ -9,6 +9,7 @@
   message-list.chat__messages(
     :messages='Rooms.messages',
     :currentRoom='Rooms.currentRoom',
+    :isEmptyRoom='Rooms.isEmptyRoom',
     @loadMoreMessages='loadMessage'
   )
 
