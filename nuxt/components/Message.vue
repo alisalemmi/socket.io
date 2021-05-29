@@ -2,7 +2,8 @@
 include ../assets/pug/icon
 
 aside.message(
-  :class='{ "message--send": flags.isSend, "message--first": flags.isFirst, "message--last": flags.isLast }'
+  :class='{ "message--send": flags.isSend, "message--first": flags.isFirst, "message--last": flags.isLast }',
+  @contextmenu.prevent.stop='$emit("contextmenu", $event)'
 )
   avatar.message__sender__image(
     v-if='flags.isFirst && !flags.isSend',

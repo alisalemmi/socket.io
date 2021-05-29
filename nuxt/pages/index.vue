@@ -1,5 +1,5 @@
 <template lang="pug">
-.chat__body
+.chat__body(@contextmenu.prevent)
   side-bar.chat__sidebar(
     :rooms='Rooms.rooms',
     :currentRoom='Rooms.currentRoom',
@@ -10,7 +10,8 @@
     :messages='Rooms.messages',
     :currentRoom='Rooms.currentRoom',
     :isEmptyRoom='Rooms.isEmptyRoom',
-    @loadMoreMessages='loadMessage'
+    @loadMoreMessages='loadMessage',
+    @contextmenu='showContextMenu'
   )
 
   send.chat__send(
@@ -22,15 +23,24 @@
     @type='TypingUsers.type',
     @submit='submit'
   )
+
+  context-menu(
+    ref='contextMenu',
+    :options='options',
+    @select='contextMenuSelect'
+  )
 </template>
 
 <script lang="tsx">
-import { Component, Vue } from 'vue-property-decorator';
+import { Component, Ref, Vue } from 'vue-property-decorator';
 
 import { IMessage } from '@/@types';
 
 import { TypingUsers, Rooms } from '@/store';
 import { sendState } from '@/components/Send.vue';
+import ContextMenu from '@/components/ContextMenu.vue';
+
+type optionsType = 'کپی' | 'نقل قول' | 'ویرایش' | 'حذف';
 
 @Component
 export default class Chat extends Vue {
@@ -41,12 +51,28 @@ export default class Chat extends Vue {
   sendState = sendState.Send;
   messageText = '';
 
+  options: optionsType[] = ['کپی', 'نقل قول', 'ویرایش', 'حذف'];
+
+  @Ref()
+  contextMenu!: ContextMenu;
+
   created() {
     this.$socket.client.open();
   }
 
   loadMessage(from: number, dir: 'before' | 'after') {
     this.Rooms.loadMessage({ from, dir });
+  }
+
+  showContextMenu(e: MouseEvent, selectedMessage: IMessage) {
+    if (selectedMessage.flags.isSend)
+      this.options = ['کپی', 'نقل قول', 'ویرایش', 'حذف'];
+    else this.options = ['کپی', 'نقل قول'];
+
+    this.contextMenu.showMenu(e, selectedMessage);
+  }
+
+  contextMenuSelect(selectedMessage: IMessage, option: optionsType) {
   }
 
   submit() {

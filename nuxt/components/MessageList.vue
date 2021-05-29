@@ -19,7 +19,8 @@ section.message-list
             :time='message.time',
             :edited='message.edited',
             :flags='message.flags',
-            @hook:mounted='loading = false'
+            @hook:mounted='loading = false',
+            @contextmenu='$emit("contextmenu", $event, message)'
           )
 
       h1#message-list__unread(
