@@ -73,11 +73,38 @@ export default class Chat extends Vue {
   }
 
   contextMenuSelect(selectedMessage: IMessage, option: optionsType) {
+    switch (option) {
+      case 'ویرایش':
+        this.messageText = selectedMessage.text;
+        this.sendState = sendState.Edit;
+        this.selectedMessage = selectedMessage;
+        break;
+    }
+  }
+
+  private resetState() {
+    this.messageText = '';
+    this.selectedMessage = null;
+    this.sendState = sendState.Send;
   }
 
   submit() {
-    Rooms.sendMessage({ messageText: this.messageText });
-    this.messageText = '';
+    switch (this.sendState) {
+      case sendState.Send:
+        Rooms.sendMessage({ messageText: this.messageText });
+
+        this.resetState();
+        break;
+
+      case sendState.Edit:
+        Rooms.editMessage({
+          messageId: this.selectedMessage?.id || '',
+          messageText: this.messageText
+        });
+
+        this.resetState();
+        break;
+    }
   }
 }
 </script>

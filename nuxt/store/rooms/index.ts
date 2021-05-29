@@ -3,11 +3,14 @@ import { VuexModule, Module, Mutation, Action } from 'vuex-module-decorators';
 
 import type {
   IUnparsedRoom,
-  IUnparsedMessage,
   ILoadMessage,
   ILoadMessageArg,
   MessagesGetter,
-  RoomsGetter
+  RoomsGetter,
+  ISendMessageArg,
+  IOnMessageArg,
+  IEditMessageArg,
+  IOnEditMessageArg
 } from '@/@types';
 
 import { $socket } from '@/util/initialize/socket.io';
@@ -100,15 +103,28 @@ export default class Rooms extends VuexModule {
   }
 
   @Mutation
-  onMessage(message: IUnparsedMessage & { room: string }) {
+  onMessage(message: IOnMessageArg) {
     this._rooms[message.room]?.addMessages(message, true);
   }
 
   @Action
-  sendMessage({ messageText }: { messageText: string }) {
+  sendMessage({ messageText }: ISendMessageArg) {
     const text = messageText.trim();
 
     if (this.currentRoom && text)
       $socket.emit('sendMessage', { text, room: this.currentRoom });
+  }
+
+  @Mutation
+  onEdit(message: IOnEditMessageArg) {
+    this._rooms[message.room]?.editMessage(message.id, message.text);
+  }
+
+  @Action
+  editMessage({ messageId, messageText }: IEditMessageArg) {
+    const text = messageText.trim();
+
+    if (this.currentRoom && messageId && text)
+      $socket.emit('sendEdit', messageId, text);
   }
 }

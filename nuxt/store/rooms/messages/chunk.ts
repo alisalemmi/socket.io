@@ -91,4 +91,13 @@ export class Chunk {
   merge(chunk: this) {
     this.add(chunk._messages);
   }
+
+  findMessage(messageId: string) {
+    return this._messages.findIndex(message => message.id === messageId);
+  }
+
+  editMessage(index: number, newText: string) {
+    this._messages[index].text = newText;
+    this._messages[index].edited = true;
+  }
 }

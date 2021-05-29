@@ -94,4 +94,23 @@ export abstract class MessageList {
       this.chunks.splice(this.getChunkPosition(chunk.from), 0, chunk);
     }
   }
+
+  private findMessage(messageId: string): [number, number] {
+    let i = -1;
+    let j = -1;
+
+    for (i = this.chunks.length - 1; i >= 0; i--) {
+      j = this.chunks[i].findMessage(messageId);
+
+      if (j >= 0) break;
+    }
+
+    return [i, j];
+  }
+
+  editMessage(messageId: string, newText: string) {
+    const [i, j] = this.findMessage(messageId);
+
+    if (i >= 0 && j >= 0) this.chunks[i].editMessage(j, newText);
+  }
 }

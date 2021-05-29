@@ -45,3 +45,20 @@ export interface ILoadMessageArg {
   from: number;
   dir: 'after' | 'before' | 'both';
 }
+
+export interface ISendMessageArg {
+  messageText: string;
+}
+
+export type IOnMessageArg = IUnparsedMessage & { room: string };
+
+export interface IEditMessageArg {
+  messageId: string;
+  messageText: string;
+}
+
+export interface IOnEditMessageArg {
+  room: string;
+  id: string;
+  text: string;
+}
