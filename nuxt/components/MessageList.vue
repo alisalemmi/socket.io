@@ -69,7 +69,17 @@ export default class MessageList extends Vue {
 
   getLoadingTime(i: number, j: number) {
     if (i) {
-      const chunk = this.messages[i][j - 1];
+      let chunk = this.messages[i][j - 1];
+
+      while (!chunk.length && i >= 0 && j >= 0) {
+        j--;
+
+        chunk =
+          j > 1
+            ? this.messages[i][j - 1]
+            : this.messages[--i][this.messages[i].length - 1];
+      }
+
       const day = chunk[chunk.length - 1];
 
       return day[day.length - 1].time;
