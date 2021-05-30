@@ -2,6 +2,7 @@
 include ../assets/pug/icon
 
 aside.message(
+  :id='messageId',
   :class='{ "message--send": flags.isSend, "message--first": flags.isFirst, "message--last": flags.isLast }',
   @contextmenu.prevent.stop='$emit("contextmenu", $event)'
 )
@@ -12,6 +13,10 @@ aside.message(
   span.message__sender__name(v-if='flags.isFirst && !flags.isSend') {{ sender.name }}
 
   .message__body
+    .message__quote(v-if='quote', @click='$emit("quoteClicked", quote.id)')
+      span {{ quote.sender.name }}
+      p.message__quote__text {{ quote.text }}
+
     p.message__text {{ text }}
 
     .message__body__footer
@@ -23,7 +28,7 @@ aside.message(
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-property-decorator';
 
-import type { IMember, IMessageFlags } from '@/@types';
+import type { IMember, IMessage, IMessageFlags } from '@/@types';
 
 import { getTime } from '@/util/time/getTime';
 
@@ -34,10 +39,16 @@ import { getTime } from '@/util/time/getTime';
 })
 export default class Message extends Vue {
   @Prop()
+  readonly messageId!: string;
+
+  @Prop()
   readonly sender!: IMember;
 
   @Prop()
   readonly text!: string;
+
+  @Prop({ default: null })
+  readonly quote!: IMessage | null;
 
   @Prop()
   readonly time!: number;
@@ -100,6 +111,30 @@ export default class Message extends Vue {
   &__text {
     user-select: text;
     white-space: pre-wrap;
+  }
+
+  &__quote {
+    $font-size: 1.3rem;
+    $line-number: 5;
+
+    padding-right: 1rem;
+    border-right: 0.25rem solid currentColor;
+
+    font-size: $font-size;
+    color: $color-text-gray-2;
+    cursor: pointer;
+
+    &__text {
+      display: block;
+      display: -webkit-box;
+      max-height: $line-number * $font-size * 1.7;
+      margin: 0.5rem auto;
+
+      -webkit-line-clamp: $line-number;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
   }
 
   &__icon {
