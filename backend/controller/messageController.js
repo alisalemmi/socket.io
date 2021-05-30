@@ -15,6 +15,13 @@ exports.create = message => {
 };
 
 /**
+ * @param {string[]} messages
+ */
+exports.getMessages = async (room, messages) => {
+  return Message.find({ _id: { $in: messages.map(id => ObjectId(id)) }, room });
+};
+
+/**
  * get latest messages of a room
  * @param {string} roomId
  * @param {Boolean} direction `true`: forward

@@ -86,6 +86,13 @@ const getHistory = async ({ room, direction, date }, callback) => {
   });
 };
 
+const getMessages = async ({ room, messages }, callback) => {
+  callback({
+    room,
+    messages: await messageController.getMessages(room, messages)
+  });
+};
+
 /**
  * @return {(room: string) => void} room
  */
@@ -162,6 +169,7 @@ const onConnect = async socket => {
   socket.on('getHistory', getHistory);
   socket.on('sendTyping', sendTyping(socket));
   socket.on('sendMessage', sendMessage(socket.userId));
+  socket.on('getMessages', getMessages);
   socket.on('sendEdit', editMessage(socket.userId));
   socket.on('sendDelete', deleteMessage(socket.userId));
   socket.on('syncLastSeenMessage', syncLastSeenMessage(socket.userId));
