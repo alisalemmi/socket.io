@@ -14,13 +14,16 @@ section.message-list
           message(
             v-for='message in msgs',
             :key='message.id',
+            :messageId='message.id',
             :sender='message.sender',
             :text='message.text',
+            :quote='message.quote',
             :time='message.time',
             :edited='message.edited',
             :flags='message.flags',
             @hook:mounted='loading = false',
-            @contextmenu='$emit("contextmenu", $event, message)'
+            @contextmenu='$emit("contextmenu", $event, message)',
+            @quoteClicked='quoteClicked'
           )
 
       h1#message-list__unread(
@@ -171,6 +174,12 @@ export default class MessageList extends Vue {
         rootMargin: '200px'
       }
     );
+  }
+
+  quoteClicked(quoteId: string) {
+    document
+      .getElementById(quoteId)
+      ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 }
 </script>

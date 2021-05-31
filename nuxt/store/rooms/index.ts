@@ -10,7 +10,9 @@ import type {
   ISendMessageArg,
   IOnMessageArg,
   IEditMessageArg,
-  IOnEditMessageArg
+  IOnEditMessageArg,
+  IGetMessagesArg,
+  IAddMessagesArg
 } from '@/@types';
 
 import { $socket } from '@/util/initialize/socket.io';
@@ -72,10 +74,12 @@ export default class Rooms extends VuexModule {
   }
 
   @Mutation
-  private addMessages(messages: ILoadMessage) {
+  private addMessages({ messages, isConnected }: IAddMessagesArg) {
     const room = this._rooms[messages.room];
 
-    room?.addMessages(messages.messages);
+    if (isConnected) room?.addMessages(messages.messages);
+    else
+      messages.messages.forEach(message => room?.addMessages(message, false));
   }
 
   @Action
@@ -95,15 +99,45 @@ export default class Rooms extends VuexModule {
             direction: dir === 'before'
           },
           (messages: ILoadMessage) => {
-            this.addMessages(messages);
-            resolve();
+            this.addMessages({ messages, isConnected: true });
+
+            // handle quotes
+            this.getMessages({
+              roomId: messages.room,
+              messages: messages.messages.map(message => message.quoteRef)
+            }).then(resolve);
           }
         )
       );
   }
 
+  @Action
+  getMessages({ roomId, messages }: IGetMessagesArg): Promise<void> {
+    const msgSet = new Set(messages);
+    msgSet.delete(undefined);
+
+    const lostMessages = this._rooms[roomId]?.getLostMessages(
+      msgSet as Set<string>
+    );
+
+    return new Promise(resolve => {
+      if (lostMessages?.size)
+        $socket.emit(
+          'getMessages',
+          { room: roomId, messages: [...lostMessages] },
+          (messages: ILoadMessage) => {
+            this.addMessages({ messages, isConnected: false });
+
+            resolve();
+          }
+        );
+      else resolve();
+    });
+  }
+
   @Mutation
   onMessage(message: IOnMessageArg) {
+    // TODO quote
     this._rooms[message.room]?.addMessages(message, true);
   }
 

@@ -4,7 +4,8 @@ import type {
   IUnparsedRoomMember,
   IUnparsedMessage,
   MembersGetter,
-  MessagesGetter
+  MessagesGetter,
+  IQuoteMessage
 } from '@/@types';
 
 import { Members } from '@/store';
@@ -35,7 +36,21 @@ export class Room extends MessageList {
 
   get messages(): MessagesGetter {
     // 1. get messages
-    const chunks = this.chunks.map(chunk => chunk.messages);
+    const chunks: IQuoteMessage[][][] = this.chunks.map(chunk =>
+      chunk.messages.map(day =>
+        day.map(message => ({
+          id: message.id,
+          sender: message.sender,
+          text: message.text,
+          quote: message.quoteRef
+            ? this.getMessage(message.quoteRef)
+            : undefined,
+          time: message.time,
+          edited: message.edited,
+          flags: message.flags
+        }))
+      )
+    );
 
     // 2. find last read messages
     let chunkIndex = -1;

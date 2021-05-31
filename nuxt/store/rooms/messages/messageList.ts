@@ -63,8 +63,8 @@ export abstract class MessageList {
     // parse argument
     const messages = (!Array.isArray(message) ? [message] : message)
       .map(
-        ({ id, text, sender, time, edited }) =>
-          new Message(id, text, sender, time, edited)
+        ({ id, text, sender, time, edited, quoteRef }) =>
+          new Message(id, text, sender, time, edited, quoteRef)
       )
       .sort((m, n) => m.time - n.time);
 
@@ -106,6 +106,24 @@ export abstract class MessageList {
     }
 
     return [i, j];
+  }
+
+  getMessage(messageId: string) {
+    const [i, j] = this.findMessage(messageId);
+
+    if (i >= 0 && j >= 0) return this.chunks[i].getMessage(j);
+  }
+
+  getLostMessages(messages: Set<string>) {
+    const lostMessages = new Set<string>();
+
+    for (const messageId of messages) {
+      const [i, j] = this.findMessage(messageId);
+
+      if (i === -1 && j === -1) lostMessages.add(messageId);
+    }
+
+    return lostMessages;
   }
 
   editMessage(messageId: string, newText: string) {

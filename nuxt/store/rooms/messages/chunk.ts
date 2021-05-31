@@ -1,4 +1,4 @@
-import type { ChunkMessagesGetter } from '@/@types';
+import type { ChunkMessagesGetter, IMessageWithoutFlag } from '@/@types';
 
 import { Members } from '@/store';
 
@@ -13,6 +13,20 @@ export class Chunk {
    */
   constructor(messages: Message[]) {
     this._messages = messages;
+  }
+
+  getMessage(index: number): IMessageWithoutFlag | undefined {
+    const msg = this._messages[index];
+
+    if (msg)
+      return {
+        id: msg.id,
+        sender: Members.getMember(msg.sender),
+        text: msg.text,
+        time: msg.time,
+        edited: msg.edited,
+        quoteRef: msg.quoteRef
+      };
   }
 
   get messages(): ChunkMessagesGetter {
@@ -34,6 +48,7 @@ export class Chunk {
           text: msg.text,
           time: msg.time,
           edited: msg.edited,
+          quoteRef: msg.quoteRef,
           flags: {
             isFirst: i === 0 || msg.sender !== msgs[i - 1].sender,
             isLast: i === msgs.length - 1 || msg.sender !== msgs[i + 1].sender,
