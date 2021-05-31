@@ -17,8 +17,14 @@ exports.create = message => {
 /**
  * @param {string[]} messages
  */
-exports.getMessages = async (room, messages) => {
-  return Message.find({ _id: { $in: messages.map(id => ObjectId(id)) }, room });
+exports.getMessages = (room, messages) => {
+  return Message.find(
+    {
+      _id: { $in: messages.map(id => ObjectId(id)) },
+      room
+    },
+    '-room'
+  );
 };
 
 /**
