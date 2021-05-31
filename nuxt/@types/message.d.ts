@@ -67,9 +67,12 @@ export interface IGetMessagesArg {
 
 export interface ISendMessageArg {
   messageText: string;
+  quoteRef?: string;
 }
 
-export type IOnMessageArg = IUnparsedMessage & { room: string };
+export interface IOnMessageArg extends IUnparsedMessage {
+  room: string;
+}
 
 export interface IEditMessageArg {
   messageId: string;

@@ -142,11 +142,11 @@ export default class Rooms extends VuexModule {
   }
 
   @Action
-  sendMessage({ messageText }: ISendMessageArg) {
+  sendMessage({ messageText, quoteRef }: ISendMessageArg) {
     const text = messageText.trim();
 
     if (this.currentRoom && text)
-      $socket.emit('sendMessage', { text, room: this.currentRoom });
+      $socket.emit('sendMessage', { room: this.currentRoom, text, quoteRef });
   }
 
   @Mutation

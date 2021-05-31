@@ -92,6 +92,11 @@ export default class Chat extends Vue {
         this.sendState = sendState.Edit;
         this.selectedMessage = selectedMessage;
         break;
+
+      case 'نقل قول':
+        this.sendState = sendState.Quote;
+        this.selectedMessage = selectedMessage;
+        break;
     }
   }
 
@@ -105,6 +110,15 @@ export default class Chat extends Vue {
     switch (this.sendState) {
       case sendState.Send:
         Rooms.sendMessage({ messageText: this.messageText });
+
+        this.resetState();
+        break;
+
+      case sendState.Quote:
+        Rooms.sendMessage({
+          messageText: this.messageText,
+          quoteRef: this.selectedMessage?.id
+        });
 
         this.resetState();
         break;
