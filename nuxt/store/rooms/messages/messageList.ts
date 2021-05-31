@@ -12,22 +12,20 @@ export abstract class MessageList {
    */
   private getChunkPosition(from: number) {
     let start = 0;
-    let end = this.chunks.length - 1;
+    let end = this.chunks.length;
     let mid = 0;
-    let ans = -1;
 
-    while (start <= end) {
+    while (start < end) {
       mid = Math.floor((start + end) / 2);
 
       if (this.chunks[mid].to <= from) {
         start = mid + 1;
       } else {
-        ans = mid;
-        end = mid - 1;
+        end = mid;
       }
     }
 
-    return ans;
+    return start;
   }
 
   private merge(index: number) {
