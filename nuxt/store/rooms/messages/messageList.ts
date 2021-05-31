@@ -135,6 +135,16 @@ export abstract class MessageList {
   deleteMessage(messageId: string) {
     const [i, j] = this.findMessage(messageId);
 
-    if (i >= 0 && j >= 0) this.chunks[i].deleteMessage(j);
+    if (i >= 0 && j >= 0) {
+      const beEmpty = this.chunks[i].deleteMessage(j);
+
+      if (beEmpty) {
+        this.chunks.splice(i, 1);
+
+        return i === this.chunks.length;
+      }
+    }
+
+    return false;
   }
 }

@@ -13,7 +13,8 @@ import type {
   IOnEditMessageArg,
   IOnDeleteMessageArg,
   IGetMessagesArg,
-  IAddMessagesArg
+  IAddMessagesArg,
+  IDeleteMessageArg
 } from '@/@types';
 
 import { $socket } from '@/util/initialize/socket.io';
@@ -50,7 +51,7 @@ export default class Rooms extends VuexModule {
   }
 
   @Mutation
-  setRoom(room: IUnparsedRoom) {
+  private setRoom(room: IUnparsedRoom) {
     Vue.set(this._rooms, room.id, new Room(room.members, room.lastMessage));
   }
 
@@ -185,8 +186,23 @@ export default class Rooms extends VuexModule {
   }
 
   @Mutation
-  onDelete({ id, room }: IOnDeleteMessageArg) {
-    this._rooms[room]?.deleteMessage(id);
+  private _deleteMessage({ id, roomId, callBack }: IDeleteMessageArg) {
+    const room = this._rooms[roomId];
+
+    if (room) callBack(room.deleteMessage(id));
+  }
+
+  @Action
+  atDelete({ id, room }: IOnDeleteMessageArg) {
+    this._deleteMessage({
+      id,
+      roomId: room,
+      callBack: (deleteLastMessage: boolean) => {
+        if (deleteLastMessage) {
+          this.loadMessage({ roomId: room, from: Date.now(), dir: 'before' });
+        }
+      }
+    });
   }
 
   @Action

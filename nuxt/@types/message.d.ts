@@ -85,6 +85,12 @@ export interface IOnEditMessageArg {
   text: string;
 }
 
+export interface IDeleteMessageArg {
+  roomId: string;
+  id: string;
+  callBack(deletLastMessage: boolean): void;
+}
+
 export interface IOnDeleteMessageArg {
   room: string;
   id: string;

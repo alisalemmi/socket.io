@@ -118,5 +118,7 @@ export class Chunk {
 
   deleteMessage(index: number) {
     this._messages.splice(index, 1);
+
+    return this._messages.length === 0;
   }
 }
