@@ -115,4 +115,8 @@ export class Chunk {
     this._messages[index].text = newText;
     this._messages[index].edited = true;
   }
+
+  deleteMessage(index: number) {
+    this._messages.splice(index, 1);
+  }
 }

@@ -11,6 +11,7 @@ import type {
   IOnMessageArg,
   IEditMessageArg,
   IOnEditMessageArg,
+  IOnDeleteMessageArg,
   IGetMessagesArg,
   IAddMessagesArg
 } from '@/@types';
@@ -160,8 +161,8 @@ export default class Rooms extends VuexModule {
   }
 
   @Mutation
-  onEdit(message: IOnEditMessageArg) {
-    this._rooms[message.room]?.editMessage(message.id, message.text);
+  onEdit({ id, room, text }: IOnEditMessageArg) {
+    this._rooms[room]?.editMessage(id, text);
   }
 
   @Action
@@ -170,5 +171,15 @@ export default class Rooms extends VuexModule {
 
     if (this.currentRoom && messageId && text)
       $socket.emit('sendEdit', messageId, text);
+  }
+
+  @Mutation
+  onDelete({ id, room }: IOnDeleteMessageArg) {
+    this._rooms[room]?.deleteMessage(id);
+  }
+
+  @Action
+  deleteMessage(messageId: string) {
+    $socket.emit('sendDelete', messageId);
   }
 }

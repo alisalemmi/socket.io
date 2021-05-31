@@ -30,6 +30,18 @@
     :options='options',
     @select='contextMenuSelect'
   )
+
+  vs-dialog(v-model='deleteDialogOpen')
+    template(#header) 
+      h2.dialog__delete__header حذف پیام
+
+    p آیا از حذف این پیام اطمینان دارید؟
+
+    template(#footer)
+      .dialog__delete__footer
+        vs-button(@click='deleteMessage', danger, border, active) حذف
+
+        vs-button(@click='deleteDialogOpen = false', transparent, dark) لغو
 </template>
 
 <script lang="tsx">
@@ -53,6 +65,7 @@ export default class Chat extends Vue {
   messageText = '';
 
   options: optionsType[] = ['کپی', 'نقل قول', 'ویرایش', 'حذف'];
+  deleteDialogOpen = false;
 
   @Ref()
   contextMenu!: ContextMenu;
@@ -97,6 +110,11 @@ export default class Chat extends Vue {
         this.sendState = sendState.Quote;
         this.selectedMessage = selectedMessage;
         break;
+
+      case 'حذف':
+        this.deleteDialogOpen = true;
+        this.selectedMessage = selectedMessage;
+        break;
     }
   }
 
@@ -132,6 +150,12 @@ export default class Chat extends Vue {
         this.resetState();
         break;
     }
+  }
+
+  deleteMessage() {
+    if (this.selectedMessage) Rooms.deleteMessage(this.selectedMessage.id);
+
+    this.deleteDialogOpen = false;
   }
 }
 </script>
@@ -225,6 +249,20 @@ export default class Chat extends Vue {
 
   &__send {
     grid-area: send;
+  }
+}
+
+.dialog__delete {
+  &__header {
+    font-weight: normal;
+  }
+
+  &__footer {
+    display: flex;
+
+    .vs-button {
+      font-size: 1.3rem;
+    }
   }
 }
 </style>

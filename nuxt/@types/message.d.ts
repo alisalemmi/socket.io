@@ -84,3 +84,8 @@ export interface IOnEditMessageArg {
   id: string;
   text: string;
 }
+
+export interface IOnDeleteMessageArg {
+  room: string;
+  id: string;
+}

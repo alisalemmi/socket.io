@@ -131,4 +131,10 @@ export abstract class MessageList {
 
     if (i >= 0 && j >= 0) this.chunks[i].editMessage(j, newText);
   }
+
+  deleteMessage(messageId: string) {
+    const [i, j] = this.findMessage(messageId);
+
+    if (i >= 0 && j >= 0) this.chunks[i].deleteMessage(j);
+  }
 }
