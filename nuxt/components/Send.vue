@@ -14,9 +14,9 @@ form.send(:class='{ "send--close": !show }', @submit.prevent)
     )
 
   .send__message__box
-    .send__info(v-show='state === sendState.Edit || state === sendState.Qoute')
-      +icon('state === sendState.Edit ? "edit" : state === sendState.Qoute ? "reply-message" : ""').send__info__icon
-      .send__info__state {{ state === sendState.Edit ? "ویرایش" : state === sendState.Qoute ? "نقل قول" : "" }}
+    .send__info(v-show='state === sendState.Edit || state === sendState.Quote')
+      +icon('state === sendState.Edit ? "edit" : state === sendState.Quote ? "reply-message" : ""').send__info__icon
+      .send__info__state {{ state === sendState.Edit ? "ویرایش" : state === sendState.Quote ? "نقل قول" : "" }}
       .send__info__close(@click='$emit("cancel")')
       .send__info__text {{ selectedMessage && selectedMessage.text }}
 

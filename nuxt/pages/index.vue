@@ -3,7 +3,7 @@
   side-bar.chat__sidebar(
     :rooms='Rooms.rooms',
     :currentRoom='Rooms.currentRoom',
-    @select-room='Rooms.changeRoom'
+    @select-room='changeRoom'
   )
 
   message-list.chat__messages(
@@ -21,7 +21,8 @@
     :selectedMessage='selectedMessage',
     :typingUsers='TypingUsers.users',
     @type='TypingUsers.type',
-    @submit='submit'
+    @submit='submit',
+    @cancel='resetState'
   )
 
   context-menu(
@@ -58,6 +59,18 @@ export default class Chat extends Vue {
 
   created() {
     this.$socket.client.open();
+  }
+
+  mounted() {
+    window.addEventListener('keyup', e => {
+      if (/^Esc(ape)?$/i.test(e.key)) this.$root.$emit('escape');
+    });
+  }
+
+  changeRoom(roomId: string) {
+    this.resetState();
+
+    Rooms.changeRoom(roomId);
   }
 
   loadMessage(from: number, dir: 'before' | 'after') {
