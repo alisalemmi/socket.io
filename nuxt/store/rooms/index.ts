@@ -50,9 +50,20 @@ export default class Rooms extends VuexModule {
   }
 
   @Mutation
-  onRooms(rooms: IUnparsedRoom[]) {
+  setRoom(room: IUnparsedRoom) {
+    Vue.set(this._rooms, room.id, new Room(room.members, room.lastMessage));
+  }
+
+  @Action
+  atRooms(rooms: IUnparsedRoom[]) {
     rooms.forEach(room => {
-      Vue.set(this._rooms, room.id, new Room(room.members, room.lastMessage));
+      this.setRoom(room);
+
+      if (room.lastMessage?.quoteRef)
+        this.getMessages({
+          roomId: room.id,
+          messages: [room.lastMessage.quoteRef]
+        });
     });
   }
 
