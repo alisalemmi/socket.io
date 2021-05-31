@@ -73,13 +73,21 @@ export default class Rooms extends VuexModule {
     }
   }
 
-  @Mutation
-  private addMessages({ messages, isConnected }: IAddMessagesArg) {
-    const room = this._rooms[messages.room];
+  private addMessages({ messages, isConnected }: IAddMessagesArg): void;
+  private addMessages(message: IOnMessageArg): void;
 
-    if (isConnected) room?.addMessages(messages.messages);
-    else
-      messages.messages.forEach(message => room?.addMessages(message, false));
+  @Mutation
+  private addMessages(payload: IAddMessagesArg | IOnMessageArg) {
+    const room = this._rooms[
+      'messages' in payload ? payload.messages.room : payload.room
+    ];
+
+    if ('messages' in payload) {
+      const msgs = payload.messages.messages;
+
+      if (payload.isConnected) room?.addMessages(msgs);
+      else msgs.forEach(message => room?.addMessages(message, false));
+    } else room?.addMessages(payload, true);
   }
 
   @Action
@@ -135,10 +143,12 @@ export default class Rooms extends VuexModule {
     });
   }
 
-  @Mutation
-  onMessage(message: IOnMessageArg) {
-    // TODO quote
-    this._rooms[message.room]?.addMessages(message, true);
+  @Action
+  atMessage(message: IOnMessageArg) {
+    this.addMessages(message);
+
+    if (message.quoteRef)
+      this.getMessages({ roomId: message.room, messages: [message.quoteRef] });
   }
 
   @Action
